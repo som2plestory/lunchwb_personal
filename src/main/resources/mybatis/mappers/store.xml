@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="store">
+
+	<resultMap id="StoreVo" type="com.lunchwb.vo.StoreVo">
+		<result column="store_no" property="storeNo" />
+		<result column="menu_2nd_cate_no" property="menu2ndCateNo" />
+		<result column="menu_2nd_cate_name" property="menu2ndCateName" />
+		<result column="store_name" property="storeName" />
+		<result column="store_road_address" property="storeRoadAddress" />
+		<result column="store_old_address" property="storeOldAddress" />
+		<result column="store_opening_hours" property="storeOpeningHours" />
+		<result column="store_breaktime" property="storeBreaktime" />
+		<result column="visit_count" property="visitCnt" />
+		<result column="rating_bujang" property="ratingBujang" />
+		<result column="favorite_group" property="favoriteGroup" />
+		<result column="favorite_count" property="favoriteCount" />
+	</resultMap>
+	
+	
+	<!-- 비로그인 회원 장바구니 아이템 추천 -->
+	<select id="guestStoreRecommend" parameterType="Map" resultType="StoreVo">
+		<![CDATA[
+			SELECT store_no storeNo
+			       ,menu_2nd_cate_name menu2ndCateName
+			       ,store_name storeName
+			       ,store_road_address storeRoadAddress
+			       ,store_x storeX
+			       ,store_y storeY
+			       ,rating_bujang ratingBujang
+			       ,store_opening_hours storeOpeningHours
+                   ,store_breaktime storeBreaktime
+			       ,distance
+			       ,score
+			FROM (SELECT s.store_no, f.menu_2nd_cate_name, s.store_name, s.store_road_address, b.rating_bujang, s.store_opening_hours, s.store_breaktime, store_x, store_y
+			             ,ROUND(SQRT(POWER(ABS(s.store_x-#{curr_location.gpsX})*COS(37)*6400000*2*3.14/360, 2) + POWER(ABS(s.store_y-#{curr_location.gpsY})*6400000*2*3.14/360, 2)), 0) distance
+			             ,(NVL(v.cnt, 0)/10 + (r.rating_naver-4) * 100 + NVL(b.rating_bujang, 0) * 50) score
+			      FROM   store s, rating_others r, food_2nd_category f
+			             ,(SELECT store_no, COUNT(*) cnt 
+			               FROM visited 
+			               GROUP BY store_no) v
+			             ,(SELECT store_no, AVG(user_score) rating_bujang
+			               FROM review, visited 
+			               WHERE review.visited_no = visited.visited_no 
+			               GROUP BY visited.store_no) b
+			      WHERE  s.store_no = r.store_no
+			      AND    s.store_no = b.store_no(+)
+			      AND    s.store_no = v.store_no(+)
+			      AND    s.menu_2nd_cate_no = f.menu_2nd_cate_no
+	    ]]>
+		
+		<foreach collection="filter_excluded" item="cate_1st" separator="">
+	              AND    f.menu_1st_cate_no != #{cate_1st}
+		</foreach>
+		
+		<foreach collection="basket" item="storedItem" separator="">
+	              AND    s.store_no != #{storedItem.storeNo}
+	              AND    s.store_road_address != #{storedItem.storeRoadAddress}
+		</foreach>
+			  
+		<![CDATA[
+		         AND    ((r.rating_naver >= 4.3 AND r.rating_kakao >= 3) OR (r.rating_naver >= 4.5 AND r.rating_kakao = 0)) 
+			     ORDER BY score DESC)
+		    WHERE  distance <= 500
+		    AND    ROWNUM <= 200
+		    ORDER BY DBMS_RANDOM.value
+		]]>
+	</select>
+	
+	
+	<!-- 로그인 회원 장바구니 아이템 추천 -->
+	<select id="groupStoreRecommend" parameterType="Map" resultType="StoreVo">
+		<![CDATA[
+			SELECT store_no storeNo
+			       ,menu_2nd_cate_name menu2ndCateName
+			       ,store_name storeName
+			       ,store_x storeX
+			       ,store_y storeY
+			       ,store_road_address storeRoadAddress
+			       ,rating_bujang ratingBujang
+			       ,store_opening_hours storeOpeningHours
+                   ,store_breaktime storeBreaktime
+			       ,distance
+			       ,score
+			FROM (SELECT s.store_no, f.menu_2nd_cate_name, s.store_name, s.store_road_address, b.rating_bujang, s.store_opening_hours, s.store_breaktime, store_x, store_y
+			             ,ROUND(SQRT(POWER(ABS(s.store_x-#{curr_location.gpsX})*COS(37)*6400000*2*3.14/360, 2) + POWER(ABS(s.store_y-#{curr_location.gpsY})*6400000*2*3.14/360, 2)), 0) distance
+			             ,(NVL(v.cnt, 0)/10 + (r.rating_naver-4) * 100 + NVL(b.rating_bujang, 0) * 50 + NVL(gv.group_cnt, 0) * 10 + NVL(gr.group_rating-3, 0) * 10 - NVL(rv.visit, 0) * 10000 - NVL(ABS(age.year - av.groupAge), 20) - ABS(NVL(groupRate.rate, 0.5) - NVL(rate.rate, 0.5)) * 30) score
+			      FROM   store s, rating_others r, food_2nd_category f
+			             ,(SELECT store_no, COUNT(*) cnt 
+			               FROM   visited 
+			               GROUP BY store_no) v
+			             ,(SELECT store_no, AVG(user_score) rating_bujang
+			               FROM   review, visited 
+			               WHERE  review.visited_no = visited.visited_no 
+			               GROUP BY visited.store_no) b
+			             ,(SELECT store_no, COUNT(*) group_cnt
+			               FROM   visited
+			               WHERE  group_no = #{groupNo}
+			               GROUP BY store_no) gv
+			             ,(SELECT v.store_no store_no, AVG(r.user_score) group_rating
+			               FROM   review r, (SELECT visited_no, store_no
+			                                 FROM   visited
+			                                 WHERE  group_no = #{groupNo}) v
+			               WHERE  v.visited_no = r.visited_no
+			               GROUP BY store_no) gr
+			             ,(SELECT store_no, COUNT(*) visit
+			               FROM   visited
+			               WHERE  group_no = #{groupNo}
+			               AND    visited_date >= SYSDATE - 2
+			               GROUP BY store_no) rv   
+			             ,(SELECT store_no, ROUND(AVG(year), 0) year
+			               FROM   visited v
+			                      ,(SELECT group_no, AVG(user_birth_year) year 
+			                        FROM users u, group_member m 
+			                        WHERE u.user_no = m.user_no 
+			                        GROUP BY group_no) u
+			               WHERE  v.group_no = u.group_no
+			               GROUP BY store_no) age
+			             ,(SELECT AVG(user_birth_year) groupAge 
+			               FROM   users u, group_member m
+			               WHERE  u.user_no = m.user_no
+			               AND    group_no = #{groupNo}) av   
+			             ,(SELECT ROUND(female / (female+male), 2) rate
+			               FROM   (SELECT COUNT(*) female
+			                       FROM   group_member m, users u
+			                       WHERE  m.user_no = u.user_no
+			                       AND    group_no = #{groupNo}
+			                       AND    user_sex = 'female')
+			                     ,(SELECT COUNT(*) male   
+			                       FROM   group_member m, users u
+			                       WHERE  m.user_no = u.user_no
+			                       AND    group_no = #{groupNo}
+			                       AND    user_sex = 'male')) groupRate
+			             ,(SELECT  s.store_no, ROUND((NVL(female, 0) / (NVL(female, 0) + NVL(male, 0))), 2) rate     
+			               FROM    store s
+			                     ,(SELECT store_no, COUNT(*) female
+			                       FROM   visited v, group_member m, users u
+			                       WHERE  v.group_no = m.group_no
+			                       AND    u.user_no = m.user_no
+			                       AND    user_sex = 'female'
+			                       GROUP BY store_no) a 
+			                     ,(SELECT store_no, COUNT(*) male
+			                       FROM   visited v, group_member m, users u
+			                       WHERE  v.group_no = m.group_no
+			                       AND    u.user_no = m.user_no
+			                       AND    user_sex = 'male'
+			                       GROUP BY store_no) b    
+			                WHERE  s.store_no = a.store_no
+			                AND    s.store_no = b.store_no) rate
+			      WHERE  s.store_no = r.store_no
+			      AND    s.store_no = b.store_no(+)
+			      AND    s.store_no = v.store_no(+)
+			      AND    s.menu_2nd_cate_no = f.menu_2nd_cate_no
+			      AND    s.store_no = gv.store_no(+)
+			      AND    s.store_no = gr.store_no(+)
+			      AND    s.store_no = rv.store_no(+)
+			      AND    s.store_no = age.store_no(+)
+			      AND    s.store_no = rate.store_no(+)
+	    ]]>
+		
+		<foreach collection="filter_excluded" item="cate_1st" separator="">
+	              AND    f.menu_1st_cate_no != #{cate_1st}
+		</foreach>
+		
+		<foreach collection="basket" item="storedItem" separator="">
+	              AND    s.store_no != #{storedItem.storeNo}
+	              AND    s.store_road_address != #{storedItem.storeRoadAddress}	              
+		</foreach>
+			  
+		<![CDATA[
+		         AND    ((r.rating_naver >= 4.3 AND r.rating_kakao >= 3) OR (r.rating_naver >= 4.5 AND r.rating_kakao = 0)) 
+		         AND     s.store_no NOT IN (SELECT store_no FROM blacklist WHERE group_no = #{groupNo})
+			     ORDER BY score DESC)
+		    WHERE  distance <= 500
+		    AND    ROWNUM <= 30
+		    ORDER BY DBMS_RANDOM.value
+		]]>
+	</select>
+	
+	
+	<!--  가게 하나 추가로 가져오기  -->
+	<select id="selectOneStore" parameterType="Map" resultMap="StoreVo">
+		<![CDATA[
+			SELECT store_breaktime storeBreakTime, menu_2nd_cate_name menu2ndCateName, store_opening_hours storeOpeningHours, store_name storeName, store_no storeNo, store_road_address storeRoadAdderss, store_x storeX, store_y storeY
+			       ,ROUND(SQRT(POWER(ABS(store_x-#{gpsVo.gpsX})*COS(37)*6400000*2*3.14/360, 2) + POWER(ABS(store_y-#{gpsVo.gpsY})*6400000*2*3.14/360, 2)), 0) distance
+			FROM   store s, food_2nd_category f
+			WHERE  s.menu_2nd_cate_no = f.menu_2nd_cate_no
+			AND    store_no = #{storeNo}
+		]]>
+	</select>
+	
+	
+	<!-- 가게기본정보 -->
+	<select id="basicStoreInfo" parameterType="int" resultMap="StoreVo">
+		<![CDATA[
+			SELECT  s.store_no
+					, store_name
+					, menu_2nd_cate_name
+					, store_road_address
+					, store_opening_hours
+					, store_breaktime
+					, visit_count
+					, rating_bujang
+					, favorite_group
+					, favorite_count
+			FROM 	store s, food_2nd_category f
+					, (SELECT COUNT(visited_no) visit_count
+					   FROM visited
+					   WHERE store_no = #{storeNo}) 
+					, (SELECT  ROUND(NVL(AVG(user_score),0), 2) rating_bujang
+					   FROM review r, visited v
+			   		   WHERE v.visited_no = r.visited_no
+			   		   AND v.user_no = r.user_no
+			   		   AND v.store_no = #{storeNo}) 
+					, (SELECT favorite_group, favorite_count
+					   FROM	(SELECT favorite_group, COUNT(favorite_group) favorite_count
+							 FROM	(SELECT vt.store_no, vt.group_no, vt.visited_date
+											, CASE WHEN COUNT(vt.user_no) > 5 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 30 THEN '20대 이하 6인 이상'
+												   WHEN COUNT(vt.user_no) > 5 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) >= 30 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 40 THEN '30대 6인 이상'
+												   WHEN COUNT(vt.user_no) > 5 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) >= 40 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 50 THEN '40대 6인 이상'
+												   WHEN COUNT(vt.user_no) > 5 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) >= 50 THEN '50대 이상 6인 이상'
+												   WHEN COUNT(vt.user_no) <= 5 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 30 THEN '20대 이하 5인 이하'
+												   WHEN COUNT(vt.user_no) <= 5 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) >= 30 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 40 THEN '30대 5인 이하'
+												   WHEN COUNT(vt.user_no) <= 5 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) >= 40 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 50 THEN '40대 5인 이하'
+												   WHEN COUNT(vt.user_no) <= 5 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) >= 50 THEN '50대 이상 5인 이하'
+											END favorite_group
+								     FROM	(SELECT s.store_no, TO_DATE(v.visited_date) visited_date, u.user_no, v.group_no, u.user_birth_year
+										 	 FROM store s, visited v, users u
+										 	 WHERE s.store_no = v.store_no(+)
+										 	 AND v.user_no = u.user_no) vt
+					   				 GROUP BY vt.store_no, vt.group_no, vt.visited_date) dt
+							 GROUP BY favorite_group
+							 ORDER BY COUNT(favorite_group) DESC)
+					   WHERE ROWNUM = 1)
+			WHERE s.menu_2nd_cate_no = f.menu_2nd_cate_no
+			AND s.store_no = #{storeNo}
+		]]>
+	</select>	
+	
+	
+	<!-- 가게와의 거리 -->
+	<select id="storeDistance" parameterType="Map" resultType="int">
+		SELECT ROUND(SQRT(POWER(ABS(store_x-#{gpsVo.gpsX})*COS(37)*6400000*2*3.14/360, 2) + POWER(ABS(store_y-#{gpsVo.gpsY})*6400000*2*3.14/360, 2)), 0) distance
+		FROM store
+		WHERE store_no = #{storeNo}
+	</select>
+	
+	
+	<!-- 같은 카테고리 다른 가게 -->
+	<select id="sameCateOtherStores" parameterType="Map" resultMap="StoreVo">
+		<![CDATA[
+			SELECT  store_no
+					, store_name
+					, rating_bujang
+			FROM (SELECT ROWNUM rn, store_no, store_name, rating_bujang
+				  FROM (SELECT s.store_no, store_name, NVL(rating_bujang, 0) rating_bujang
+				 	    FROM store s 
+				 	         , (SELECT store_no, COUNT(visited_no) all_visit_count 
+				 	         	  FROM visited v  
+				 	         	  GROUP BY store_no) vct
+				 	         , (SELECT store_no, AVG(user_score) rating_bujang 
+				 	            FROM review r, visited v 
+				 	            WHERE r.visited_no = v.visited_no 
+				 	            GROUP BY store_no) rbt
+		]]>
+						<if test="storeVo.groupNo != 0 and storeVo.groupNo != ''">	 	    
+				 	         , (SELECT store_no, COUNT(DISTINCT(TO_DATE(visited_date))) group_visit_count 
+				 	            FROM visited 
+				 	            WHERE group_no = #{storeVo.groupNo} 
+				 	            GROUP BY store_no) gvc
+				 	         , (SELECT store_no, AVG(user_score) rating_group 
+				 	            FROM visited v, review r 
+				 	            WHERE v.visited_no = r.visited_no 
+				 	            AND group_no = #{storeVo.groupNo} 
+				 	            GROUP BY store_no) grt
+				 	         , (SELECT aa.store_no,(NVL(same_age_visit, 0)/all_age_visit)*100 -25 age_visit_ratio 
+				 	         	FROM (SELECT store_no, COUNT(store_no) all_age_visit
+				 	  				  FROM (SELECT store_no, group_no, TO_DATE(visited_date) visited_date 
+				 	  				        FROM visited v, users u 
+				 	  				        WHERE v.user_no = u.user_no 
+				 	  				        GROUP BY store_no, group_no, visited_date)
+				 	  				  GROUP BY store_no) aa
+		<![CDATA[
+				 	  		 	   , (SELECT store_no , count(store_no) same_age_visit 
+				 	  			 	  FROM (SELECT store_no, group_no, CASE  WHEN AVG(age) <30 THEN '20s' 
+				 	  			 									   		 WHEN AVG(age) >=30 AND AVG(age) < 40 THEN '30s' 
+				 	  			 									   		 WHEN AVG(age) >=40 AND AVG(age) < 50 THEN '40s'
+				 	  											  	   ELSE  '50s' 
+				 	  											  	   END group_avg_age
+				 	  			 	   		FROM (SELECT store_no, group_no, TO_DATE(visited_date) visited_date, TO_NUMBER(TO_CHAR(visited_date, 'YYYY')) - user_birth_year + 1 age
+				 	  			 			 	  FROM visited v, users u 
+				 	  			 			 	  WHERE v.user_no = u.user_no) 
+				 	  			 			GROUP BY store_no, group_no, visited_date) ct
+				 	  			   	  WHERE group_avg_age = (SELECT CASE WHEN AVG(TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - user_birth_year + 1) <30 THEN '20s'
+					 	  			   									 WHEN AVG(TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - user_birth_year + 1) >= 30 AND AVG(TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - user_birth_year + 1) < 40 THEN '30s'    
+					 	  			   									 WHEN AVG(TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - user_birth_year + 1) >= 40 AND AVG(TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - user_birth_year + 1) < 50 THEN '40s'
+				 	  			   								 	ELSE '50s' END g_ave_age
+				 	  									  	 FROM users u, group_member m 
+				 	  									  	 WHERE u.user_no = m.user_no 
+				 	  									  	 AND group_no = #{storeVo.groupNo} 
+				 	  									  	 GROUP BY group_no)
+				 	  			 	  GROUP BY store_no) sa
+		]]>						  					   	
+				 	  			WHERE aa.store_no = sa.store_no (+)) avr
+				 	  	</if>
+		<![CDATA[
+				 	    WHERE ROUND(SQRT(POWER(ABS(store_x-#{gpsVo.gpsX})*COS(37)*6400000*2*3.14/360, 2) + POWER(ABS(store_y-#{gpsVo.gpsY})*6400000*2*3.14/360, 2)), 0) <= 1000
+		]]>
+				 	    AND menu_2nd_cate_no = (SELECT s.menu_2nd_cate_no 
+				 	    						FROM store s, food_2nd_category f 
+				 	    						WHERE s.store_no = #{storeVo.storeNo} 
+				 	    						AND s.menu_2nd_cate_no = f.menu_2nd_cate_no)
+				 	    <if test="storeVo.groupNo != 0 and storeVo.groupNo != ''">						
+				 	    AND s.store_no NOT IN (SELECT store_no 
+						 	    		       FROM visited 
+		<![CDATA[						 	    		       
+						 	    		       WHERE visited_date >= TO_DATE(SYSDATE-5) 
+						 	    		       AND group_no = #{storeVo.groupNo})
+		]]>
+						AND s.store_no NOT IN (SELECT black_no 
+											   FROM blacklist 
+											   WHERE group_no = #{storeVo.groupNo})						 	    		       
+						</if> 	    		     
+				 	    AND s.store_no = vct.store_no (+)
+				 	    AND s.store_no = rbt.store_no (+)
+				 	    <if test="storeVo.groupNo != 0 and storeVo.groupNo != ''">
+				 	    AND s.store_no = gvc.store_no (+)
+				 	    AND s.store_no = grt.store_no (+)
+				 	    AND s.store_no = avr.store_no (+)
+				 	    </if>
+				 	    AND s.store_no != #{storeVo.storeNo}
+				 	    ORDER BY (NVL((all_visit_count/10), 0)
+				 	    <if test="storeVo.groupNo != 0 and storeVo.groupNo != ''"> 
+				 	    		  + NVL((group_visit_count)*2, 0) 
+				 	    		  + NVL(rating_group, 0) 
+				 	    		  + NVL(age_visit_ratio, 0)
+				 	    </if>
+				 	    		  + NVL((rating_bujang*100),0)) 
+				 	    		  DESC))
+		<![CDATA[			
+			WHERE ROWNUM <= 3
+		]]>
+	</select>
+	
+</mapper>

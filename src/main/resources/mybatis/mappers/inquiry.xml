@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="inquiry">
+	<resultMap id="resultMapInquiryVo" type="InquiryVo">
+		<result column="inquiry_no" property="inquiryNo" />
+		<result column="user_no" property="userNo" />
+		<result column="inquiry_title" property="inquiryTitle" />
+		<result column="inquiry_content" property="inquiryContent" />
+		<result column="inquiry_file_path" property="inquiryFilePath" />
+		<result column="inquiry_date" property="inquiryDate" />
+		<result column="inquiry_status" property="inquiryStatus" />
+		<result column="reply_no" property="replyNo" />
+		<result column="admin_no" property="adminNo" />
+		<result column="reply_content" property="replyContent" />
+		<result column="user_email" property="userEmail" />
+	</resultMap>
+
+
+	<select id="inquiryList" parameterType="int" resultMap="resultMapInquiryVo">
+		<![CDATA[
+			select  inquiry_no, 
+					inquiry_title, 
+					to_char(inquiry_date,'yy-mm-dd hh:mi') inquiry_date, 
+					inquiry_status 
+			from inquiry 
+			where user_no = #{userNo} 
+			order by inquiry_no desc
+		]]>
+	</select>
+
+	<insert id="writeInquiry" parameterType="InquiryVo">
+		<![CDATA[
+			insert into inquiry 
+		]]>
+			<!-- 파일없는 경우 -->
+		<if test="inquiryFilePath == ''">
+		<![CDATA[
+			(inquiry_no,user_no,inquiry_title,inquiry_content,inquiry_date,inquiry_status) 
+			values(seq_inquiry_no.nextval, #{userNo}, #{inquiryTitle}, #{inquiryContent},sysdate,'접수')
+		]]>
+		</if>
+			<!-- 파일있는 경우 -->
+		<if test="inquiryFilePath != ''">
+		<![CDATA[
+			(inquiry_no,user_no,inquiry_title,inquiry_content,inquiry_file_path,inquiry_date,inquiry_status) 
+			values(seq_inquiry_no.nextval, #{userNo}, #{inquiryTitle}, #{inquiryContent},#{inquiryFilePath},sysdate,'접수')
+		]]>
+		</if>
+	</insert>
+	
+	<select id="readInquiry" parameterType="int" resultMap="resultMapInquiryVo">
+        <![CDATA[
+            select  i.inquiry_no, 
+                    i.inquiry_title, 
+                    i.inquiry_content, 
+                    u.user_email, 
+                    i.inquiry_file_path 
+            from inquiry i, users u 
+            where i.user_no = u.user_no 
+            and i.inquiry_no = #{inquiryNo}
+        ]]>
+    </select>
+
+</mapper>

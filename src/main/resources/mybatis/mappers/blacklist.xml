@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="blacklist">
+
+	<resultMap id="BlackVo" type="com.lunchwb.vo.BlacklistVo">
+		<result column="black_no" property="blackNo" />
+		<result column="store_no" property="storeNo" />
+		<result column="group_no" property="groupNo" />
+		<result column="user_no" property="userNo" />
+		<result column="reg_date" property="regDate" />
+		<result column="store_name" property="storeName" />
+		<result column="menu_2nd_cate_name" property="menu2ndCateName" />
+		<result column="store_road_address" property="storeRoadAddress" />
+	</resultMap>	
+
+
+	<select id="blacklist" parameterType="int" resultMap="BlackVo">
+		SELECT  b.store_no
+		        , store_name
+		        , menu_2nd_cate_name
+		        , store_road_address
+		FROM blacklist b, store s, food_2nd_category f
+		WHERE b.store_no = s.store_no
+		AND s.menu_2nd_cate_no = f.menu_2nd_cate_no
+		AND group_no = #{groupNo}
+		ORDER BY black_no ASC
+	</select>
+	
+	
+	<select id="isBlack" parameterType="BlackVo" resultType="int">
+		SELECT COUNT(black_no)
+		FROM blacklist
+		WHERE group_no = #{groupNo}
+		AND store_no = #{storeNo}
+	</select>
+	
+	
+	<select id="blackStore" parameterType="int" resultMap="BlackVo">
+		SELECT  b.store_no
+		        , store_name
+		        , menu_2nd_cate_name
+		        , store_road_address
+		FROM blacklist b, store s, food_2nd_category f
+		WHERE b.store_no = s.store_no
+		AND s.menu_2nd_cate_no = f.menu_2nd_cate_no
+		AND black_no = #{blackNo}
+		ORDER BY black_no ASC
+	</select>	
+	
+	
+	<insert id="addBlack" parameterType="BlackVo">
+		<selectKey keyProperty="blackNo" resultType="int" order="BEFORE">
+			SELECT SEQ_BLACK_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT into blacklist
+		VALUES (#{blackNo}, #{storeNo}, #{groupNo}, TO_DATE(SYSDATE))
+	</insert>
+	
+	
+	<delete id="deleteBlack" parameterType="BlackVo">
+		DELETE FROM blacklist
+		WHERE group_no = #{groupNo}
+		AND store_no = #{storeNo}
+	</delete>
+	
+	
+	<select id="blackStoreSearch" parameterType="BlackVo" resultMap="BlackVo">
+		SELECT  s.store_no
+		        , store_name
+		        , menu_2nd_cate_name
+		        , store_road_address
+		FROM store s, food_2nd_category f
+		WHERE s.store_name LIKE '%'||#{keyword}||'%'
+		AND s.store_no NOT IN	(SELECT store_no 
+								 FROM blacklist 
+								 WHERE group_no = #{groupNo})
+		AND s.menu_2nd_cate_no = f.menu_2nd_cate_no
+		ORDER BY s.store_no ASC
+	</select>
+	
+</mapper>

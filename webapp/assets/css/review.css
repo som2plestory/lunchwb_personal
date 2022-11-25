@@ -1,0 +1,20 @@
+.modal-rev-p {
+  margin: 0px;
+  text-align: center;
+}
+
+.guideCmt {
+  color: gray;
+  font-weight: bolder;
+}
+
+.warningCmt {
+  color: #e74a3b;
+  font-weight: bolder;
+}
+
+
+.imgrow{
+	max-height: 180px;
+	
+}

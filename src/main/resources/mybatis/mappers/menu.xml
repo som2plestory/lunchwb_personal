@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="menu">
+	<resultMap id="MenuVo" type="MenuVo">
+		<result column="menu_no" property="menuNo" />
+		<result column="menu_name" property="menuName" />
+		<result column="menu_etc" property="menuEtc" />
+		<result column="menu_2nd_cate_no" property="menu2ndCateNo" />
+		<result column="menu_2nd_cate_name" property="menu2ndCateName" />
+		<result column="menu_1st_cate_no" property="menu1stCateNo" />
+		<result column="menu_1st_cate_name" property="menu1stCateName" />
+	</resultMap>
+	
+	<!-- 리뷰 메뉴 띄우기 -->
+	<select id="menuList" parameterType="int" resultMap="MenuVo">
+		SELECT  m.menu_no
+		        , m.menu_name
+		FROM store s, menu m
+		WHERE s.menu_2nd_cate_no = m.menu_2nd_cate_no
+		AND s.store_no = #{storeNo}
+		ORDER BY m.menu_no ASC
+	</select>
+
+</mapper>

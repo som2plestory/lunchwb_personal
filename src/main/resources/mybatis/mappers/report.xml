@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="report">
+	
+		<resultMap id="ReportVo" type="com.lunchwb.vo.ReportVo">
+			<result column="report_no" property="reportNo" />
+			<result column="review_no" property="reviewNo" />
+			<result column="user_no" property="userNo" />
+			<result column="report_stat" property="reportStat" />
+			<result column="report_cate_no" property="reportCateNo" />
+			<result column="report_cate_name" property="reportCateName" />
+			<result column="store_no" property="storeNo" />
+		</resultMap>
+		
+		<insert id="reviewReport" parameterType="ReportVo">
+			INSERT INTO report
+			VALUES (seq_report_no.NEXTVAL, #{reportCateNo}, #{reviewNo}, #{userNo}, 0)
+		</insert>
+		
+</mapper>

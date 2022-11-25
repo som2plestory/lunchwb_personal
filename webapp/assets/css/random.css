@@ -1,0 +1,20 @@
+.randomGame {
+  max-width: 1920px;
+  margin: auto;
+}
+
+.modal-noborder {
+  border: 0px;
+}
+
+.random-result {
+  color: #3e5cb2;
+  text-align: center;
+}
+
+.resultRandomModal {
+  margin: 10px 0px;
+  padding: 30px 0px;
+  text-align: center;
+}
+

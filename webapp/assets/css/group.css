@@ -1,0 +1,341 @@
+/* group page */
+
+/*********************************** group-aside / 그룹 페이지 공통 *****************************/
+
+#body {
+	overflow-x:scroll;
+}
+
+#group-aside {
+  color: var(--bs-blue);
+  background: #6484dd;
+  width: 250px;
+}
+
+#group-aside #group-aside-header {
+  color: var(--bs-indigo);
+  background: var(--bs-white);
+  width: 250px;
+  height: 70px;
+}
+
+#group-aside #group-nav-title {
+  padding: 35px 0 0px 0 !important;
+  text-align: center !important;
+  font-size: 20px !important;
+  font-weight: bold !important;
+  color: white !important;
+}
+
+#group-aside #group-aside-ul {
+  margin: 20px;
+}
+
+#group-aside #group-aside-ul .nav-item .group-nav-menu {
+  margin: 0px 0 5px 0 !important;
+  padding: 10px 0 10px 0 !important;
+  text-align: center !important;
+  font-size: 16px !important;
+  color: white;
+  font-weight: normal !important;
+}
+
+#group-aside #group-aside-ul .nav-item .group-nav-active {
+  width: initial;
+  text-align: center !important;
+  background-color: var(--bs-white) !important;
+  border-radius: 7px !important;
+  color: var(--bs-blue) !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+#group-aside .group-nav-btn {
+  width: 210px;
+  margin: 0px 0px 15px 20px;
+  padding: 7px 0 7px 0 !important;
+  text-align: center !important;
+  font-size: 14px !important;
+  color: #ffffff;
+  font-weight: normal !important;
+  text-align: center;
+}
+
+.group-title-btn-area {
+  float: right;
+}
+
+.group-title-btn, .btn-groupmem-invt, .btn-store-search {
+  padding: 2px 12px 2px 12px !important;
+  height: 30px;
+  font-size: 14px !important;
+  vertical-align: middle;
+}
+
+.btn-groupmem-invt .card-body, .btn-store-search .card-body{
+  font-size: 14px !important;
+} 
+
+/*********************************** group-content *****************************/
+#group-name {
+  padding: 0px 0px 5px 0px;
+  font-size: 18px;
+  border-bottom: 1px solid #bbbbbb;
+}
+
+
+.group-content-title {
+  min-width: 600px;
+}
+
+/* , #group-blacklist-add */
+#groupmem-list, #groupmem-invt, #groupmem-add, #new-group, #group-blacklist{
+  min-width: 700px;
+}
+
+.groupmem-user {
+  width: 40px;
+  font-size: 18px;	
+}
+
+.groupmem-delete, .group-black-delete, .group-black-add {
+  width: 40px;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* store-list-table < admin */
+#groupmem-list-table, .store-list-table {
+  /* height: 250px; */
+  text-align: center;
+  font-size: 14px !important;
+}
+
+#groupmem-list, #groupmem-invt ,#new-group, #group-blacklist {
+  margin: 0px 0px 30px 0px;
+}
+
+#groupmem-add, #new-group, #group-blacklist-add {
+  margin: 0px 0px 50px 0px;
+}
+
+input[type="email"] {
+  width: 250px;
+  height: 28px;
+  margin: 0px 5px 10px 0px;
+  padding: 0px 5px;
+  font-size: 14px;
+}
+
+#groupmem-add input[type="text"] {
+  width: 170px;
+  height: 28px;
+  margin: 0px 5px 10px 0px;
+  padding: 0px 5px;
+  font-size: 14px;
+}
+
+#groupmem-add select {
+  margin-right: 5px;
+  color: #858796;
+}
+
+#new-group input[type="text"] {
+  width: 200px;
+  height: 28px;
+  margin: 0px 5px 10px 0px;
+  padding: 0px 5px;
+  font-size: 14px;
+}
+
+#group-blacklist-add input {
+  width: 170px;
+  height: 28px;
+  margin: 0px 5px 1px 0px;
+  padding: 0px 5px;
+  font-size: 14px;
+}
+
+select {
+  height: 28px;
+  margin: 0px 5px 0px 1px;
+}
+
+#group-blacklist .blacklist-search {
+  float: right;
+}
+
+#store-search-limit {
+  font-size: 14px;
+}
+
+.blacklist-delete, .blacklist-add {
+  color: var(--bs-table-striped-color);
+}
+
+.order-drag-icon {
+  float: right;
+}
+
+#modal-group-order-change .ion-arrow-up-b {
+  float: left;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+#modal-group-order-change .ion-arrow-down-b {
+  float: right;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.group-order-area {
+  padding: 8px 10px 0px 10px;
+  margin: 2px 0px 0px 0px;
+  background-color: var(--bs-light);
+  text-align: center;
+}
+
+#modal-group-name-change .modal-body-custom {
+  text-align: center;
+}
+
+#modal-group-name-change input[type="text"] {
+  width: 100%;
+  margin: 10px 0px 5px 0px;
+  font-size: 14px !important;
+}
+
+.group-order-area > p {
+  margin: 0px 5px 10px 5px;
+  padding-bottom: 5px;
+}
+
+#groupmem-add, #groupmem-invt {
+  font-size: 14px;
+}
+
+.group-color-blue {
+  color: rgb(66,98,190);
+  font-weight: bolder;
+}
+
+.modal-group-p {
+  margin: 0px;
+  text-align: center;
+}
+
+#dropdown-group-leader-pass {
+  width: 216px;
+  margin: 20px 0px 0px 0px;
+  padding: 3px;
+  background-color: rgba(254,254,254,0);
+  color: var(--bs-gray);
+  border-color: var(--bs-gray);
+}
+
+.col-md-6 {
+  max-width: 50%;
+}
+
+option:hover {
+  background-color: var(--bs-gray-300);
+}
+
+.black-store-name{
+  cursor: pointer;
+}
+
+.store-search-name{
+  cursor: pointer;
+}
+
+
+/*********************** 위치 *****************************/
+
+#curr-location {
+  float: right;
+  font-size: 14px
+}
+
+#location-change-btn {
+  height: 30px;
+  margin: 10px;
+  padding: 2px 12px 2px 12px !important;
+  font-size: 14px !important;
+  vertical-align: middle;
+}
+
+#modal-location-change {
+	min-width: 828px;
+}
+
+#modal-location-change .modal-header h4 {
+  font-size: 18px;
+  color: rgb(46,46,48);
+}
+
+#modal-location-change .modal-body > div {
+  margin-bottom: 40px;
+}
+
+#modal-location-change .modal-body > div > span {
+  width: 100%;
+  min-width: 100%;
+  max-width: 100%;
+  display: inline-block;
+  color: rgb(83,84,91);
+  font-weight: bold;
+  font-size: 15px;
+}
+
+#modal-location-change .modal-body #modal-curr-location-box {
+  margin-top: 18px;
+}
+
+#modal-curr-location-box span {
+  font-size: 14px;
+  color: rgb(77,77,82);
+}
+
+#modal-curr-location-box button {
+  font-size: 13px;
+  padding: 3px 5px;
+  margin-left: 0;
+}
+
+#modal-location-change .modal-body #write-location-box {
+  margin-top: 26px;
+}
+
+#write-location-box span {
+  color: var(--bs-blue);
+  font-size: 14px;
+  font-weight: bold;
+  display: inline;
+  padding-right: 10px;
+}
+
+#write-location-box input {
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--bs-gray-500);
+  width: 330px;
+  height: 25px;
+}
+
+#write-location-box button {
+  height: 25px;
+  margin-left: -11px;
+  border-style: solid;
+  border-color: var(--bs-blue);
+  border-radius: 0 7px 7px 0;
+  display: inline-flex;
+}
+
+#write-location-box button i {
+  font-size: 10px;
+  position: relative;
+  display: inline;
+}

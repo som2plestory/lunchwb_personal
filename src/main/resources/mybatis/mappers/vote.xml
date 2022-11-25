@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="vote">
+
+	<!-- 비회원 투표 상태 존재 확인 -->
+	<select id="selectGuestVoteState" parameterType="int" resultType="Integer">
+		<![CDATA[
+			SELECT vote_state
+			FROM   vote
+			WHERE  vote_no = #{voteNo}
+		]]>
+	</select>
+	
+	
+	<!-- 회원 참여 투표 존재 확인 --> 
+	<select id="selectMemberVoteNo" parameterType="int" resultType="Integer">
+		<![CDATA[
+			SELECT vote.vote_no
+			FROM   vote_members, vote
+			WHERE  vote_members.vote_no = vote.vote_no
+			AND    user_no = #{userNo}
+			AND    vote_state != 4
+			AND    TO_CHAR(vote_end_time, 'YY/MM/DD') = TO_CHAR(SYSDATE, 'YY/MM/DD')
+		]]>
+	</select>
+	
+
+	<!--  투표 생성하기  -->
+	<insert id="insertNewVote" parameterType="VoteVo">
+		<selectKey keyProperty="voteNo" resultType="int" order="BEFORE">
+			SELECT seq_vote_no.nextval * 1000000 + LPAD(ROUND(DBMS_RANDOM.VALUE(0, 999999)),6,0) voteNo
+            FROM   dual
+		</selectKey>
+		
+		<![CDATA[
+			INSERT INTO vote
+			VALUES (#{voteNo}, #{userNo}, #{groupNo}, #{voteEndTime}, #{voteItems}, #{voteResults}, 1, #{currX}, #{currY})
+		]]>
+	</insert>
+	
+	
+	<!-- vote_members에 사용자 추가하기  -->
+	<insert id="insertVoteMember" parameterType="Map">
+		INSERT INTO vote_members (vote_member_no, vote_no, user_no, user_name, vote_voted)
+		SELECT seq_vote_member_no.nextval, A.*
+		FROM (
+		<foreach item="member" collection="voteMember" separator="UNION ALL ">
+			SELECT #{voteNo} AS vote_no, #{member.userNo} AS user_no, #{member.userName} AS user_name, 0 AS vote_voted
+			FROM dual
+		</foreach>
+		) A
+	</insert>
+	
+	
+	<!-- vote_members에 오늘 투표 참여 안하는 추가하기  -->
+	<insert id="insertNotTodayMember" parameterType="Map">
+		INSERT INTO vote_members (vote_member_no, vote_no, user_no, user_name, vote_voted)
+		SELECT seq_vote_member_no.nextval, A.*
+		FROM (
+		<foreach item="member" collection="voteMember" separator="UNION ALL ">
+			SELECT #{voteNo} AS vote_no, #{member.userNo} AS user_no, #{member.userName} AS user_name, -1 AS vote_voted
+			FROM dual
+		</foreach>
+		) A
+	</insert>
+	
+	
+	<!--  basketAside 로딩 전 정보 가져오기    -->
+	<select id="selectVoteInfo" parameterType="int" resultType="VoteVo">
+		<![CDATA[
+			SELECT DISTINCT voteNo 
+			                ,voteMadeUser
+			                ,voteEndTime
+			                ,voteItems
+			                ,voteResults
+			                ,voteState
+			                ,currX
+			                ,currY
+			                ,groupNo
+			                ,groupName
+			                ,voteMemberNo
+			                ,x.userNo
+			                ,userName 
+			                ,voteVoted
+			                ,userGrade
+			                ,NVL(boss_check, 0) bossCheck
+            FROM   group_member m, (SELECT v.vote_no voteNo
+			                               ,vote_made_user voteMadeUser
+			                               ,vote_end_time voteEndTime
+			                               ,vote_items voteItems
+			                               ,vote_results voteResults
+			                               ,vote_state voteState
+			                               ,curr_x currX
+			                               ,curr_y currY
+			                               ,g.group_name groupName
+			                               ,v.group_no groupNo
+			                               ,vote_member_no voteMemberNo
+			                               ,m.user_no userNo
+			                               ,m.user_name userName
+			                               ,vote_voted voteVoted
+                                           ,NVL(user_grade, -1) userGrade
+			                        FROM   vote v, vote_members m, groups g, users u
+			                        WHERE  v.vote_no = m.vote_no
+			                        AND    v.group_no = g.group_no
+                                    AND    u.user_no(+) = m.user_no
+			                        AND    v.vote_no = #{voteNo}) x
+            WHERE m.user_no(+) = x.userNo
+            ORDER BY voteMemberNo ASC
+		]]>
+	</select>
+	
+	
+	<!--  guest 투표 여부 확인  -->
+	<select id="selectGuestVoted" parameterType="Map" resultType="Integer">
+		<![CDATA[
+			SELECT vote_voted
+			FROM   vote_members
+			WHERE  vote_ip = #{clientIp}
+			AND    vote_no = #{voteNo}
+		]]>
+	</select>
+	
+	
+	<!--  투표 결과만 가져오기  -->
+	<select id="selectVoteResults" parameterType="int" resultType="string">
+		<![CDATA[
+			SELECT vote_results
+			FROM   vote
+			WHERE  vote_no = #{voteNo}
+		]]>
+	</select>
+	
+	
+	<!--  투표 결과 업데이트  -->
+	<update id="updateVoteResults" parameterType="VoteVo">
+		<![CDATA[
+			UPDATE vote
+			SET    vote_results = #{voteResults}
+			WHERE  vote_no = #{voteNo}
+		]]>
+	</update>
+	
+	
+	<!--  voteVoted 업데이트  -->
+	<update id="updateVoteVoted" parameterType="VoteVo">
+		<![CDATA[
+			UPDATE vote_members
+			SET    vote_voted = #{voteVoted}
+			WHERE  vote_member_no = #{voteMemberNo}
+		]]>
+	</update>
+	
+	
+	<!--  투표 진행 상황  -->
+	<select id="currVote" parameterType="int" resultType="VoteVo">
+		<![CDATA[
+			SELECT COUNT(*) totCnt, COUNT(CASE WHEN(vote_voted > 0) THEN 1 ELSE NULL END) votedCnt
+			FROM   vote_members
+			WHERE  vote_no = #{voteNo}
+			AND    vote_voted > -1
+		]]>
+	</select>
+	
+	
+	<!--  투표 종료  -->
+	<update id="updateVoteEnd" parameterType="int">
+		<![CDATA[
+			UPDATE vote
+			SET    vote_state = 3
+			WHERE  vote_no = #{voteNo}
+		]]>
+	</update>
+	
+	
+	<!--  투표 취소 -->
+	<delete id="DeleteVote" parameterType="int">
+		<![CDATA[
+			DELETE vote
+			WHERE  vote_no = #{voteNo}
+		]]>
+	</delete>
+	
+	
+	<!--  사용자 상태 투표완료로 업데이트  -->
+	<update id="updateUserEnd" parameterType="int">
+		<![CDATA[
+			UPDATE users
+			SET    user_state = 3
+			WHERE  user_no IN (SELECT user_no 
+			                   FROM   vote_members 
+			                   WHERE  vote_no = #{voteNo} 
+			                   AND    user_no > 0
+			                   AND    vote_voted >= 0)
+		]]>
+	</update>
+	
+	
+	<!--  사용자 상태 여기갈래요 완료로 업데이트  -->
+	<update id="updateUserVisited" parameterType="int">
+		<![CDATA[
+			UPDATE users
+			SET    user_state = 4
+			WHERE  user_no IN (SELECT user_no 
+			                   FROM   vote_members 
+			                   WHERE  vote_no = #{voteNo} 
+			                   AND    user_no != 0
+			                   AND    vote_voted >= 0)
+		]]>
+	</update>
+	
+	
+	<!--  투표 수정하면서 제외된 회원 voteVoted = -1로 수정  -->
+	<select id="updateModifyMember" parameterType="Map">
+		<![CDATA[
+			UPDATE vote_members
+			SET    vote_voted = -1
+			WHERE  vote_no = #{voteNo}
+			ANd    (1 = 0 
+		]]>		
+		<foreach item="member" collection="notTodayMem">
+		           OR     user_no = #{member.userNo}
+		</foreach>
+        <![CDATA[  )
+        ]]>
+	</select>
+	
+	
+	<!--  기본 상태로 변경  -->
+   	<update id="updateState0" parameterType="List">
+   		<![CDATA[
+	   		UPDATE users
+	   		SET    user_state = 0
+	   		WHERE  1 = 0
+	   	]]>
+	   	<foreach item="voteVo" collection="list">
+	   		OR     user_no = #{voteVo.userNo}
+	   	</foreach>
+   	</update>
+	
+	
+	<!--  사용자 상태 투표 안함으로 초기화  -->
+	<update id="updateUserReset" parameterType="int">
+		<![CDATA[
+			UPDATE users
+			SET    user_state = 0
+			WHERE  user_no IN (SELECT user_no 
+			                   FROM   vote_members 
+			                   WHERE  vote_no = #{voteNo} 
+			                   AND    user_no != 0
+			                   AND    vote_voted >= 0)
+		]]>
+	</update>
+	
+	
+	<!--  방문완료 투표 상태 업데이트  -->
+	<update id="updateVoteVisited" parameterType="int">
+		<![CDATA[
+			UPDATE vote
+			SET    vote_state = 4
+			WHERE  vote_no = #{voteNo}
+		]]>
+	</update>
+	
+	
+	<!--  비회원 투표하기  -->
+	<update id="updateGuestVoted" parameterType="VoteVo">
+		<![CDATA[
+			UPDATE vote_members
+			SET    vote_voted = #{voteVoted},
+			       vote_ip = #{voteIp}
+			WHERE  vote_member_no = #{voteMemberNo}
+		]]>
+	</update>
+	
+	
+	<!--  투표 종료 시각 업데이트하기  -->
+	<update id="updateVoteEndTime" parameterType="Map">
+		<![CDATA[
+			UPDATE vote
+			SET    vote_end_time = #{voteEndTime}
+			WHERE  vote_no = #{voteNo}
+		]]>
+	</update>
+	
+	
+	<!--  투표 수정 > 아직 투표 안하고 앞으로 투표 참여할 voteMembers 삭제  -->
+	<delete id="deleteNotVoted" parameterType="Map">
+		<![CDATA[
+			DELETE vote_members
+			WHERE  vote_no = #{voteNo}
+			AND    (1 = 0
+		]]>
+		<foreach item="member" collection="voteMem">
+			OR     user_no = #{member.userNo}
+		</foreach>
+		<![CDATA[
+			OR     vote_voted = 0)
+		]]>
+	</delete>
+	
+	
+	<!--  탈주 > vote_members에서 나 삭제  -->
+	<delete id="deleteEscape" parameterType="VoteVo">
+		<![CDATA[
+			DELETE vote_members
+			WHERE  user_no = #{userNo}
+			AND    vote_no = #{voteNo}
+		]]>
+	</delete>
+	
+	
+	<!-- 투표 하고 탈주한 넘... > 투표 결과에서 얘꺼 빼버리기  -->
+	<update id="updateEscapeResult" parameterType="VoteVo">
+		<![CDATA[
+			UPDATE vote
+			SET    vote_results = #{voteResults}
+			WHERE  vote_no = #{voteNo}
+		]]>
+	</update>
+	
+	
+	<!--  투표 생성 가능 여부 체크  -->
+	<select id="canMakeVote" parameterType="int" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*)
+			FROM   vote
+			WHERE  group_no = #{groupNo}
+			AND    TO_CHAR(vote_end_time, 'YY/MM/DD') = TO_CHAR(SYSDATE, 'YY/MM/DD')
+		]]>
+	</select>
+	
+	
+	<!--  자정에 투표 삭제  -->
+	<delete id="deleteVoteMidnight">
+		<![CDATA[
+			DELETE vote
+		]]>
+	</delete>
+</mapper>

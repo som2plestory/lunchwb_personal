@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="notification">
+
+	<resultMap id="NotiVo" type="com.lunchwb.vo.NotificationVo">
+		<result column="noti_no" property="notiNo" />
+		<result column="user_no" property="userNo" />
+		<result column="noti_type" property="notiType" />
+		<result column="noti_name" property="notiName" />
+		<result column="group_no" property="groupNo" />
+		<result column="group_order" property="groupOrder" />
+		<result column="group_name" property="groupName" />
+		<result column="send_user" property="sendUser" />
+		<result column="send_email" property="sendEmail" />
+		<result column="send_name" property="sendName" />
+		<result column="report_no" property="reportNo" />
+		<result column="report_cate_name" property="reportCateName" />
+		<result column="review_date" property="reviewDate" />
+		<result column="reply_no" property="replyNo" />
+		<result column="inquiry_title" property="inquiryTitle" />
+		<result column="inquiry_no" property="inquiryNo" />
+		<result column="alert_comment" property="alertCmt" />
+		<result column="noti_state" property="notiState" />
+	</resultMap>
+	
+	
+	<!-- 미확인 알림 개수 - 페이지 로드 시 -->
+	<select id="notiCount" parameterType="int" resultType="int">
+		SELECT count(noti_no)
+		FROM notification n
+		WHERE user_no = #{userNo}
+		AND noti_state = 0
+	</select>
+	
+	
+	<!-- 미확인 알림 리스트 - 알림 아이콘 누를 때 뜨지 않았던것만 추가 갱신 붙이기 -->
+	<select id="notiList" parameterType="NotiVo" resultMap="NotiVo">
+		SELECT  n.noti_no
+				, n.noti_type
+				, n.group_no
+				, ga.group_name
+				, n.send_user
+				, ga.send_name
+				, ga.send_email
+				, ga.group_leader
+				, n.alert_comment
+				, ra.report_cate_name
+				, ra.review_date
+				, ia.inquiry_no
+				, ia.inquiry_title
+		FROM notification n
+			 , (SELECT noti_no, group_name, user_name send_name, user_email send_email, g.group_leader
+			 	FROM notification n, groups g, users u
+			 	WHERE noti_type NOT IN(8,9)
+			 	AND n.send_user = u.user_no(+)
+			 	AND n.group_no = g.group_no) ga
+			 , (SELECT noti_no, report_cate_name
+			 		   , TO_CHAR(visited_date, 'YY')||'년'||TO_CHAR(visited_date, ' MM')||'월'||TO_CHAR(visited_date, ' DD')||'일' review_date
+			 	FROM notification n , report p, report_cate c, review r, visited v
+			 	WHERE n.report_no = p.report_no
+			 	AND p.report_cate_no = c.report_cate_no
+			 	AND p.review_no = r.review_no
+			 	AND r.visited_no = v.visited_no) ra
+			 , (SELECT noti_no, r.inquiry_no, inquiry_title
+			 	FROM notification n, reply_inquiry r, inquiry i
+			 	WHERE n.reply_no = r.reply_no
+			 	AND r.inquiry_no = i.inquiry_no) ia
+		WHERE n.user_no = #{userNo}
+		AND n.noti_state = 0
+		AND n.noti_no > #{notiNo}
+		AND n.noti_no = ga.noti_no(+)
+		AND n.noti_no = ra.noti_no(+)
+		AND n.noti_no = ia.noti_no(+)
+		ORDER BY n.noti_no
+	</select>
+	
+	
+	<!-- 그룹원 단체 알림(통보) : 그룹 이름 변경 7 -->
+	<insert id="alertOfGroupChange" parameterType="NotiVo" >
+			INSERT INTO notification (noti_no, user_no, noti_type, group_no, alert_comment)
+			VALUES (SEQ_NOTI_NO.NEXTVAL, #{userNo}, 7, #{groupNo}, #{alertCmt})
+	</insert>
+	
+	
+	<!-- 그룹원 알림 - 통보 5/6 -->
+	<insert id="addGroupNoti" parameterType="NotiVo">
+		INSERT INTO notification (noti_no, user_no, noti_type, group_no)
+		VALUES (SEQ_NOTI_NO.NEXTVAL, #{userNo}, #{notiType}, #{groupNo})
+	</insert>
+	
+	
+	<!-- 그룹 알림 - 회신 1(회신받을)/2(회신)/3(회신)/4(정보)/10(회신받을) -->
+	<insert id="addGroupReNoti" parameterType="NotiVo">
+		INSERT INTO notification (noti_no, user_no, noti_type, group_no, send_user)
+		VALUES (SEQ_NOTI_NO.NEXTVAL, #{userNo}, #{notiType}, #{groupNo}, #{sendUser})
+	</insert>
+	
+	
+	<!-- 리뷰 삭제 알림 8 -->
+	<insert id="addReportNoti" parameterType="NotiVo">
+		INSERT INTO notification (noti_no, user_no, noti_type, report_no)
+		VALUES (SEQ_NOTI_NO.NEXTVAL, #{userNo}, #{notiType}, #{reportNo})
+	</insert>
+	
+	
+	<!-- 문의 답변 알림 9 -->
+	<insert id="addReplyNoti" parameterType="NotiVo">
+		INSERT INTO notification (noti_no, user_no, noti_type, reply_no)
+		VALUES (SEQ_NOTI_NO.NEXTVAL, #{userNo}, #{notiType}, #{replyNo})
+	</insert>
+	
+	
+	<!-- 그룹 초대장을 보낸 인원(초대 중)/초대중인지 확인 -->
+	<select id="membersInvitedCount" parameterType="int" resultType="int">
+		SELECT count(user_no)
+		FROM notification
+		WHERE group_no = #{groupNo}
+		AND noti_type IN (1, 10)
+		AND noti_state = 0
+	</select>
+	
+	
+	<!-- 그룹 초대중인 회원인가? -->
+	<select id="alreadyInvite" parameterType="Map" resultType="int">
+		SELECT count(user_no)
+		FROM notification
+		WHERE group_no = #{groupNo}
+		AND noti_type IN (1, 10)
+		AND noti_state = 0
+		AND user_no = (SELECT user_no 
+					   FROM users 
+					   WHERE user_email = #{userEmail})
+	</select>
+	
+	
+	<!-- 보스로 초대한 유저가 있나? -->
+	<select id="invitingBoss" parameterType="int" resultType="int">
+		SELECT count(user_no)
+		FROM notification
+		WHERE group_no = #{groupNo}
+		AND noti_type = 10
+		AND noti_state = 0		
+	</select>
+	
+	
+	<!-- 알림 확인 처리 -->
+	<update id="notiChangeToCheck" parameterType="int">
+		UPDATE notification
+		SET noti_state = 1
+		WHERE noti_no = #{notiNo}
+	</update>
+	
+	
+	
+
+</mapper>

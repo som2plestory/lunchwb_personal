@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+    <typeAliases>
+        <!-- <typeAlias alias="AloneVo" type="com.lunchwb.vo.AloneVo"/> -->
+        <typeAlias alias="InquiryVo" type="com.lunchwb.vo.InquiryVo"/>
+   		<typeAlias alias="FaqVo" type="com.lunchwb.vo.FaqVo"/>
+   		<typeAlias alias="UserVo" type="com.lunchwb.vo.UserVo"/>
+   		<typeAlias alias="GroupVo" type="com.lunchwb.vo.GroupVo"/>
+   		<typeAlias alias="StoreVo" type="com.lunchwb.vo.StoreVo"/>
+   		<typeAlias alias="ReviewVo" type="com.lunchwb.vo.ReviewVo"/>
+        <typeAlias alias="StatVo" type="com.lunchwb.vo.StatVo"/>
+   		<typeAlias alias="VisitedVo" type="com.lunchwb.vo.VisitedVo"/>
+   		<typeAlias alias="GPSVo" type="com.lunchwb.vo.GPSVo"/>
+   		<typeAlias alias="ReportVo" type="com.lunchwb.vo.ReportVo"/>
+   		<typeAlias alias="VoteVo" type="com.lunchwb.vo.VoteVo"/>
+   		<typeAlias alias="MenuVo" type="com.lunchwb.vo.MenuVo"/>
+   		<typeAlias alias="BlackVo" type="com.lunchwb.vo.BlacklistVo"/>
+   		<typeAlias alias="RandomVo" type="com.lunchwb.vo.RandomVo"/>
+   		<typeAlias alias="NotiVo" type="com.lunchwb.vo.NotificationVo"/>
+   		<typeAlias alias="Map" type="java.util.Map"/>
+   		<typeAlias alias="List" type="java.util.List"/>
+   		<typeAlias alias="Date" type="java.util.Date"/>
+    </typeAliases>
+
+    <mappers>
+        <!-- <mapper resource="mybatis/mappers/alone.xml" /> -->
+        <mapper resource="mybatis/mappers/inquiry.xml" />
+        <mapper resource="mybatis/mappers/faq.xml" />
+        <mapper resource="mybatis/mappers/user.xml" />
+        <mapper resource="mybatis/mappers/group.xml" />
+        <mapper resource="mybatis/mappers/blacklist.xml" />
+        <mapper resource="mybatis/mappers/store.xml" />
+        <mapper resource="mybatis/mappers/review.xml" />
+        <mapper resource="mybatis/mappers/stat.xml" />
+        <mapper resource="mybatis/mappers/visited.xml" />
+        <mapper resource="mybatis/mappers/basket.xml" />
+        <mapper resource="mybatis/mappers/report.xml" />
+        <mapper resource="mybatis/mappers/vote.xml" />
+        <mapper resource="mybatis/mappers/menu.xml" />
+        <mapper resource="mybatis/mappers/test.xml" />
+        <mapper resource="mybatis/mappers/random.xml" />
+        <mapper resource="mybatis/mappers/notification.xml" />
+    </mappers>
+</configuration>

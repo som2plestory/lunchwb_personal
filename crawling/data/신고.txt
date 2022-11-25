@@ -1,0 +1,10 @@
+insert into report_cate values (1, '광고/홍보글');
+insert into report_cate values (2, '욕설/비방');
+insert into report_cate values (3, '잘못된메뉴');
+insert into report_cate values (4, '관련없는내용');
+insert into report_cate values (5, '개인정보유출');
+insert into report_cate values (6, '음란/선정성');
+
+
+
+

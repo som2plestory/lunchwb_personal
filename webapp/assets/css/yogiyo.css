@@ -1,0 +1,165 @@
+@media (min-width: 768px) {
+  .sidebar {
+    width: 300px !important;
+  }
+}
+
+h1,h2 {display:inline}
+
+body {
+  font-family: 'Nanum Gothic';
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.no-drag {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+#user-aside {
+  color: var(--bs-indigo);
+  background: var(--bs-body-bg);
+  width: 300px;
+}
+
+#bujang-logo {
+  cursor: pointer;
+  width: 200px;
+  height: 44.16px;
+  margin: 15px 30px 30px 20px;
+  padding: 0;
+}
+
+#bujang-logo-blue {
+  cursor: pointer;
+  width: 200px;
+  height: 44.16px;
+  margin: 15px 30px 11px 20px;
+  padding: 0;
+}
+
+.nav-title {
+  padding: 10px 0 8px 0 !important;
+  text-align: center !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+  color: white !important;
+}
+
+.nav-menu {
+  margin: 5px 0 0 0 !important;
+  padding: 4px 0 4px 0 !important;
+  text-align: center !important;
+  font-size: 14px !important;
+  font-weight: normal !important;
+}
+
+.nav-active {
+  padding: 4px 0 4px 0 !important;
+  text-align: center !important;
+  background-color: var(--bs-white) !important;
+  border-radius: 7px !important;
+  color: var(--bs-blue) !important;
+  font-weight: 900 !important;
+  font-size: 14px !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+}
+
+#user-aside hr {
+  color: #dddddd;
+  width: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 20px;
+}
+
+#header {
+  width: 100%;
+  white-space: nowrap;
+  display: flex;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#header .container {
+  margin: 0;
+  min-width: 1100px;
+  height: 70.15px;
+}
+
+#header ul {
+  white-space: nowrap;
+  min-width: 200px;
+}
+
+#header ul li {
+  white-space: nowrap;
+  display: inline-block;
+}
+
+#user-alert i {
+  cursor: pointer;
+  height: 20px;
+  width: 24px;
+  padding-top: 0px;
+  color: var(--bs-gray-400);
+}
+
+#user-alert i:hover {
+  color: #bbbbbb !important;
+}
+
+#user-alert .badge-counter {
+  margin-bottom: 6px;
+  margin-left: 0px;
+  margin-right: 3px;
+}
+
+#logout-btn {
+  color: var(--bs-gray-400);
+  min-width: 71.125px;
+  background: var(--bs-white);
+  font-size: 12px;
+  border-color: var(--bs-white);
+  border-top-color: rgb(255,255,255);
+  text-align: left;
+  padding-bottom: 10px;
+  font-weight: bold;
+  margin-left: 10px;
+  margin-right: 9px;
+  margin-top: 0px;
+}
+
+#logout-btn:hover {
+  color: #bbbbbb;
+}
+
+#menu-dropdown i {
+  margin: 0 0px 5px 0;
+  border-color: var(--bs-gray-400);
+  color: var(--bs-gray-400);
+  cursor: pointer;
+}
+
+#menu-dropdown i:hover {
+  color: #bbbbbb;
+}
+
+#menu-dropdown .dropdown-menu {
+  z-index:99;
+  margin: 2px 0 0;
+  width: 130px;
+  min-width: 120px;
+  max-width: 120px;
+}
+
+#footer span {
+  font-size: 12px;
+}

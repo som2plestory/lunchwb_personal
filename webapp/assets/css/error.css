@@ -1,0 +1,24 @@
+#bujang-logo-wrap {
+  height: 70.1562px;
+  width: 300px;
+  min-width: 300px;
+  max-width: 300px;
+  padding: 0 30px 11px 20px;
+  position: absolute;
+}
+
+#bujang-logo-blue {
+  cursor: pointer;
+  z-index: 100;
+  width: 200px;
+  height: 44.16px;
+  min-height: 44.16px;
+  max-height: 44.16px;
+  position: absolute;
+}
+
+#error-main {
+  padding-top: 72px;
+  padding-bottom: 178px;
+}
+

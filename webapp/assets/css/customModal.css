@@ -1,0 +1,39 @@
+/*********************************** 커스텀 모달 공통 *****************************/
+
+.modal-header-custom {
+  font-size: 18px;
+  font-weight: bolder;
+}
+
+.modal-body-custom {
+  padding: 40px 40px 30px 40px;
+}
+
+.modal-footer-custom {
+  padding: 10px;
+  text-align: center;
+  border-top: solid 1px rgb(227,230,240);
+}
+
+.modal-footer-custom button {
+  margin: 0px 5px;
+  width: 120px;
+  cursor: pointer;
+}
+
+.modal-footer-custom .btn-light {
+  background-color: var(--bs-light);
+  border-color: rgb(66,98,190);
+  color: rgb(66,98,190);
+}
+
+.modal-footer-custom .btn-light:hover {
+  background-color: var(--bs-gray-200);
+  border-color: rgb(66,98,190);
+  color: rgb(66,98,190);
+  cursor: pointer;
+}
+
+.modal-footer-custom .btn-primary {
+  background-color: rgb(66,98,190);
+}

@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="user">
+	
+	<!-- 김준호 -->
+	<!-- 로그인 -->
+	
+
+	<select id="login" parameterType="com.lunchwb.vo.UserVo" resultType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			select user_no userNo
+					,user_password userPassword
+			        ,user_email userEmail
+			        ,user_name userName
+			        ,user_grade userGrade
+			        ,user_state userState
+			from users
+			where user_email = #{userEmail}
+		]]>
+	</select>	
+	
+	<!-- 복호화 이전 로그인 
+	
+	<select id="login" parameterType="com.lunchwb.vo.UserVo" resultType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			select user_no userNo
+			        ,user_email userEmail
+			        ,user_name userName
+			        ,user_grade userGrade
+			from users
+			where user_email = #{userEmail}
+			and user_password = #{userPassword} 		
+		]]>
+	</select> 
+	
+	-->
+	
+	<!-- 회원가입 -->
+	<insert id="join" parameterType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			insert into users (
+								user_no
+								,user_email
+								,user_password
+								,user_name
+								,user_birth_year
+								,user_sex
+								,user_joindate
+								,user_grade
+								)
+			values (seq_user_no.nextval, #{userEmail}, #{userPassword}, #{userName}, #{userBirthYear}, #{userSex}, sysdate, 1)
+		]]>
+	</insert>
+	
+	<!-- 이메일 확인 -->
+	<select id="checkEmail" parameterType="com.lunchwb.vo.UserVo" resultType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			select user_email userEmail
+			from users
+			where user_email = #{userEmail}
+		]]>
+	</select>
+	
+	<!-- 회원 정보 수정 -->
+	<!-- 회원 정보 불러오기 -->
+	<select id="getUser" parameterType="com.lunchwb.vo.UserVo" resultType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			select user_email userEmail
+			        ,user_name userName
+			        ,user_birth_year userBirthYear
+			        ,user_sex userSex
+			from users
+			where user_email = #{userEmail}
+			and user_password = #{userPassword} 		
+		]]>
+	</select>
+	
+	<!-- 회원 정보 수정 업데이트 -->
+	<update id="modifyUser" parameterType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			update users
+			set user_password = #{userPassword}
+			    ,user_name = #{userName}
+			    ,user_birth_year = #{userBirthYear}
+			    ,user_sex = #{userSex}
+			where user_email = #{userEmail}
+		]]>
+	</update>
+	
+	<!-- 비밀번호 찾기 -> 임시 비밀번호 설정 -->
+	<update id="updatePw">
+		update users
+		set user_password = #{userPassword}
+		where user_email = #{userEmail}
+	</update>
+	
+	<!-- 자동로그인 -->
+	<update id="autoLogin" parameterType="com.lunchwb.vo.UserVo">
+        update users
+        set session_id= #{sessionId}
+            ,limit_date= #{limitDate}
+        where user_email= #{userEmail}
+	</update>
+	    
+	<select id="selectSession" parameterType="com.lunchwb.vo.UserVo" resultType="com.lunchwb.vo.UserVo">
+        <![CDATA[
+	        select user_no userNo
+		        	,user_email userEmail
+			        ,user_name userName
+			        ,user_grade userGrade
+	        from users
+	        where sessionId = #{sessionId}
+	        and limit_date > sysdate
+        ]]>
+	</select>
+	
+	<!-- SNS 로그인 -->
+	<!-- 네이버 -->
+	<select id="snsConnectionCheck" parameterType="string" resultType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			select user_email userEmail
+					,user_name userName
+					,sns_login snsLogin
+			from users
+			where user_email = #{email}
+		]]>
+	</select>
+	
+	<select id="snsLogin" parameterType="map" resultType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			select user_no userNo
+			        ,user_email userEmail
+			        ,user_name userName
+			        ,user_grade userGrade
+			        ,user_state userState
+			from users
+			where user_email = #{email}
+			and sns_login = #{id}
+		]]>
+	</select>
+	
+	<update id="setSNSConnection" parameterType="map">
+		<![CDATA[
+			update users
+			set sns_login = #{id}
+			where user_email = #{email}
+		]]>
+	</update>
+	
+	<insert id="userJoinSns" parameterType="map">
+		<![CDATA[
+			insert into users (
+								user_no
+								,user_email
+								,user_name
+								,user_birth_year
+								,user_sex
+								,user_joindate
+								,user_grade
+								,sns_login
+								)
+			values (seq_user_no.nextval, #{email}, #{userName}, #{userBirthYear}, #{userSex}, sysdate, 1, #{id})
+		]]>
+	</insert>
+	
+	<!-- SNS 유저 회원정보 수정 -->
+	
+	<update id="modifySNSUser" parameterType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			update users
+			set user_name = #{userName}
+			    ,user_birth_year = #{userBirthYear}
+			    ,user_sex = #{userSex}
+			where user_email = #{userEmail}
+		]]>
+	</update>
+	
+	<select id="modifyAfterNaverLogin" parameterType="com.lunchwb.vo.UserVo" resultType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			select user_no userNo
+			        ,user_email userEmail
+			        ,user_name userName
+			        ,user_grade userGrade
+			        ,user_state userState
+			from users
+			where user_email = #{userEmail}
+			and sns_login = #{snsLogin}
+		]]>
+	</select>
+	
+	<!-- SNS 유저 확인 -->
+	<!-- 네이버, 카카오 -->
+	<select id="checkSNSUser" parameterType="com.lunchwb.vo.UserVo" resultType="com.lunchwb.vo.UserVo">
+		<![CDATA[
+			select sns_login snsLogin
+					,user_email userEmail
+			        ,user_name userName
+			        ,user_birth_year userBirthYear
+			        ,user_sex userSex
+			from users
+			where user_email = #{userEmail}
+		]]>
+	</select>
+	
+	
+	
+	<!-- 이지희 -->
+	  <insert id="addGpMember" parameterType="UserVo" useGeneratedKeys="true" keyColumn="user_no" keyProperty="userNo">
+         INSERT INTO USERS
+         VALUES (SEQ_USER_NO.NEXTVAL, '', '', #{userName}, #{userBirthYear}, #{userSex}, '', 0, 'none', '', '', 0)
+      </insert>
+   
+   	<select id="userCheck" parameterType="String" resultType="com.lunchwb.vo.UserVo">
+         SELECT  user_no userNo
+               ,user_email userEmail
+         FROM users
+         WHERE user_email = #{userEmail}
+   	</select>
+   	
+   	<select id="alertReceiver" parameterType="int" resultType="String">
+   		SELECT user_email userEmail
+   		FROM users
+   		WHERE user_no = #{userNo}
+   	</select>
+   	
+   	<update id="groupUpdateState4" parameterType="List">
+		UPDATE USERS
+		SET user_state = 4
+		WHERE
+	   	<foreach item="userNo" index="index" collection="list" separator=" OR ">
+			user_no = #{userNo}
+		</foreach>
+	</update>
+   	
+   	
+   	<!--  정원  -->
+   	<!--  기본 상태로 변경  -->
+   	<update id="updateState0" parameterType="int">
+   		<![CDATA[
+	   		UPDATE users
+	   		SET    user_state = 0
+	   		WHERE  user_no = #{userNo}
+	   	]]>
+   	</update>
+   	
+   	
+   	<!--  투표중으로 상태 변경  -->
+   	<update id="updateState1" parameterType="int">
+   		<![CDATA[
+	   		UPDATE users
+	   		SET    user_state = 1
+	   		WHERE  user_no = #{userNo}
+	   	]]>
+   	</update>
+   	
+   	
+   	<!--  나는 투표 완료, 투표 진행중  -->
+   	<update id="updateState2" parameterType="int">
+   		<![CDATA[
+	   		UPDATE users
+	   		SET    user_state = 2
+	   		WHERE  user_no = #{userNo}
+	   	]]>
+   	</update>
+   	
+   	
+   	<!-- 투표 끝  -->
+   	<update id="updateState3" parameterType="int">
+   		<![CDATA[
+	   		UPDATE users
+	   		SET    user_state = 3
+	   		WHERE  user_no = #{userNo}
+	   	]]>
+   	</update>
+   	
+   	
+   	<!--  여기갈래요 오늘 누름  -->
+   	<update id="updateState4" parameterType="int">
+   		<![CDATA[
+	   		UPDATE users
+	   		SET    user_state = 4
+	   		WHERE  user_no = #{userNo}
+	   	]]>
+   	</update>
+  	
+   	
+   	<!--  userState 다시 불러오기  -->
+   	<select id="selectUserState" parameterType="int" resultType="int">
+		<![CDATA[
+			SELECT user_state userState
+			FROM   users
+			WHERE  user_no = #{userNo}
+		]]>
+	</select>	
+	
+	
+	<!--  투표 생성 전: 참여 못하는 회원 불러오기  -->
+	<select id="selectImpossibleMember" parameterType="List" resultType="String">
+		<![CDATA[
+			SELECT user_name userName
+			FROM   users
+			WHERE  user_state != 0
+			AND   (1 != 1
+		]]>
+		<foreach item="userNo" collection="list">
+		           OR user_no = #{userNo}
+		</foreach>
+		<![CDATA[
+		          )
+		]]>
+	</select>
+	
+	
+	<!--  (스케줄러) 모든 회원 user_State 0으로 초기화  -->
+	<update id="updateAllUsers">
+		UPDATE users
+		SET    user_state = 0
+	</update>
+   	
+</mapper>

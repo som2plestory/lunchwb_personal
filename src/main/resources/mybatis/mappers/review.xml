@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="review">
+
+	<resultMap id="ReviewVo" type="com.lunchwb.vo.ReviewVo">
+		<result column="review_no" property="reviewNo" />
+		<result column="user_no" property="userNo" />
+		<result column="visited_no" property="visited_no" />
+		<result column="review_content" property="reviewContent" />
+		<result column="user_score" property="userScore" />
+		<result column="review_file_name" property="reviewFileName" />
+		<result column="review_reported" property="reviewReported" />
+		<result column="store_no" property="storeNo" />
+		<result column="user_name" property="userName" />
+		<result column="menu_name" property="menuName" />
+		<result column="visited_date" property="visitedDate" />
+		<result column="avg_age" property="avgAge" />
+		<result column="with_count" property="withCount" />
+		<result column="visited_count" property="visitedCount" />
+	</resultMap>
+	
+	<select id="storeReviews" parameterType="int" resultMap="ReviewVo">
+		<![CDATA[
+		    SELECT 	r.review_no
+					, REPLACE(u.user_name, SUBSTR(u.user_name, 2, LENGTH(u.user_name)), '**') user_name
+					, wct.avg_age
+					, wct.with_count
+					, m.menu_name
+					, r.review_content
+					, r.user_score
+					, TO_CHAR(v.visited_date, 'YY.MM.DD') visited_date
+					, vsc.visited_count
+			FROM review r, visited v, users u, menu m
+			     , (SELECT COUNT(vt.visited_no) visited_count, vt.visited_no
+				    FROM (SELECT v.visited_no
+					      FROM visited v, visited t
+					      WHERE v.visited_no > = t.visited_no
+					      AND v.user_no = t.user_no
+					      AND v.store_no = t.store_no) vt
+					GROUP BY vt.visited_no) vsc
+			     , (SELECT COUNT(vt.user_no) with_count, vt.group_no, vt.store_no, vt.visited_date
+				  	       , CASE WHEN TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year)  < 30 THEN '20대 이하 그룹'
+				  		          WHEN TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year)  >= 30 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 40 THEN '30대 그룹'
+				  		          WHEN TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year)  >= 40 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 50 THEN '40대 그룹'
+				  	         ELSE '50대 이상 그룹'
+				  	         END avg_age
+			        FROM (SELECT v.visited_date, v.user_no, v.group_no, v.store_no, u.user_birth_year
+			          	  FROM visited v, users u
+			              WHERE v.user_no = u.user_no) vt
+			        GROUP BY vt.group_no, vt.store_no, vt.visited_date
+			        HAVING vt.store_no = #{storeNo}) wct
+			WHERE r.visited_no = v.visited_no
+			AND v.user_no = u.user_no
+			AND v.menu_no = m.menu_no
+			AND v.visited_no = vsc.visited_no
+			AND v.group_no = wct.group_no
+			AND v.store_no = wct.store_no
+			AND v.visited_date = wct.visited_date
+			AND r.review_reported = 0
+			ORDER BY r.review_no DESC
+		]]>
+	</select>
+	
+	<select id="recentReview" parameterType="int" resultMap="ReviewVo">
+		<![CDATA[
+			SELECT  review_no
+					,user_name
+					,avg_age
+					,with_count
+					,menu_name
+					,review_content
+					,user_score
+					,visited_date
+					,visited_count
+			FROM(SELECT ROWNUM rn, review_no, user_name, avg_age, with_count, menu_name, review_content, user_score, visited_date, visited_count
+				 FROM(SELECT r.review_no, REPLACE(u.user_name, SUBSTR(u.user_name, 2, LENGTH(u.user_name)), '**') user_name, wct.avg_age
+							 , wct.with_count, m.menu_name, r.review_content, r.user_score, TO_CHAR(v.visited_date, 'YY.MM.DD') visited_date, vsc.visited_count
+					  FROM review r, visited v, users u, menu m
+						   ,(SELECT COUNT(vt.visited_no) visited_count, vt.visited_no
+						     FROM(SELECT v.visited_no
+							      FROM visited v, visited t
+							      WHERE v.visited_no > = t.visited_no
+							      AND v.user_no = t.user_no
+							      AND v.store_no = t.store_no) vt
+							 GROUP BY vt.visited_no) vsc
+					       ,(SELECT COUNT(vt.user_no) with_count, vt.group_no, vt.store_no, vt.visited_date
+						  	        , CASE WHEN TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year)  < 30 THEN '20대 이하 그룹'
+						  		      	   WHEN TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year)  >= 30 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 40 THEN '30대 그룹'
+						  		           WHEN TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year)  >= 40 AND TO_NUMBER(TO_CHAR(vt.visited_date, 'YYYY')) - AVG(vt.user_birth_year) < 50 THEN '40대 그룹'
+						  	          ELSE '50대 이상 그룹'
+						  	          END avg_age
+					         FROM (SELECT v.visited_date, v.user_no, v.group_no, v.store_no, u.user_birth_year
+						           FROM visited v, users u
+						           WHERE v.user_no = u.user_no) vt
+						     GROUP BY vt.group_no, vt.store_no, vt.visited_date
+						     HAVING vt.store_no = #{storeNo}) wct
+					  WHERE r.visited_no = v.visited_no
+					  AND v.user_no = u.user_no
+					  AND v.menu_no = m.menu_no
+					  AND v.visited_no = vsc.visited_no
+					  AND v.group_no = wct.group_no
+					  AND v.store_no = wct.store_no
+					  AND v.visited_date = wct.visited_date
+					  AND r.review_reported = 0
+					  ORDER BY r.review_no DESC))
+			WHERE rn >= 1
+			AND rn <= 2
+		]]>
+	</select>
+	
+	<!-- 최근 가게 이미지(3) -->
+	<select id="recentImages" parameterType="int" resultType="String">
+		<![CDATA[
+			SELECT review_file_name
+			FROM review r, visited v
+			WHERE r.visited_no = v.visited_no
+			AND store_no = #{storeNo}
+			AND review_reported = 0
+			AND review_file_name IS NOT NULL
+			AND ROWNUM <= 3
+			ORDER BY review_no DESC
+		]]>		
+	</select>
+	
+	<!-- 오늘 리뷰를 했다면 -->
+	<select id="todayReview" parameterType="int" resultMap = "ReviewVo">
+		SELECT  review_no
+				, user_score
+		        , menu_name
+		        , review_file_name
+		        , review_content
+		FROM review r, visited v, menu m
+		WHERE r.visited_no = v.visited_no
+		AND r.user_no = #{userNo}
+		AND v.visited_date = TO_DATE(SYSDATE)
+		AND v.menu_no = m.menu_no	
+	</select>
+	
+	
+	<insert id="addReview" parameterType="ReviewVo">
+		INSERT INTO review
+		VALUES (seq_review_no.NEXTVAL, #{userNo}, #{visitedNo}, #{reviewContent}, #{userScore}, 
+			<choose>
+				<when test="reviewFileName == null || reviewFileName ==''">
+					''
+				</when>
+				<otherwise>
+					#{reviewFileName}
+				</otherwise>
+			</choose>
+			, 0)
+	</insert>
+
+</mapper>

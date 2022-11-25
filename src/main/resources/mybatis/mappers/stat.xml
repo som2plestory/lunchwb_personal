@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="stat">
+	<resultMap id="resultMapStatVo" type="StatVo">
+		<result column="visited_no" property="visitedNo" />
+		<result column="user_no" property="userNo" />
+		<result column="group_no" property="groupNo" />
+		<result column="group_name" property="groupName" />
+		<result column="store_no" property="storeNo" />
+		<result column="menu_no" property="menuNo" />
+		<result column="visited_date" property="visitedDate" />
+		<result column="menu_1st_cate_Name" property="menu1stCateName" />
+		<result column="menu_2nd_cate_Name" property="menu2ndCateName" />
+		<result column="store_name" property="storeName" />
+		<result column="menu_name" property="menuName" />
+		<result column="select_month" property="selectMonth" />
+		<result column="visit_count" property="visitCount" />
+		<result column="menu_count" property="menuCount" />
+		<result column="group_order" property="groupOrder" />
+		<result column="store_road_address" property="storeRoadAddress" />
+		<result column="rating_bujang" property="ratingBujang" />
+		<result column="age_group" property="ageGroup" />
+	</resultMap>
+	
+	<!-- ============================ 통계 ============================ -->
+	<!-- 지난 한달간 음식별 여기갈래요 횟수 -->
+	<select id="lastMonth" resultType="StatVo">
+		<![CDATA[
+			select  f1.menu_1st_cate_name menu1stCateName, 
+					nvl(count(v.visited_no),0) visitCount 
+			from food_1st_category f1,visited v, menu m, food_2nd_category f2 
+			where f1.menu_1st_cate_no = f2.menu_1st_cate_no 
+			and f2.menu_2nd_cate_no = m.menu_2nd_cate_no 
+			and v.menu_no = m.menu_no 
+			and to_char(v.visited_date,'YYMM')=to_char(add_months(sysdate,-1),'YYMM') 
+			group by f1.menu_1st_cate_name,f1.menu_1st_cate_no 
+		]]>
+	</select>
+	
+	<!-- 그룹별 식사횟수 -->
+	<select id="withGroup" parameterType="int" resultMap="resultMapStatVo">
+		<![CDATA[
+			select  g.group_name, 
+					count(v.visited_no) visit_count 
+			from visited v,groups g, users u,group_member gm 
+			where v.user_no = u.user_no 
+			and v.group_no = g.group_no 
+			and g.group_no = gm.group_no 
+			and u.user_no = #{user_no} 
+			group by g.group_name,gm.group_order 
+			order by gm.group_order asc
+		]]>
+	</select>
+	
+	<!-- 지난 6개월간 '음식' 여기갈래요 수 -->
+	<select id="halfYear" parameterType="String" resultMap="resultMapStatVo">
+		<![CDATA[
+			select to_char(v.visited_date,'mm') visited_date, 
+		        count(v.visited_no) visit_count 
+			from food_1st_category f1,visited v, menu m, food_2nd_category f2 
+			where f1.menu_1st_cate_no = f2.menu_1st_cate_no 
+			and f2.menu_2nd_cate_no = m.menu_2nd_cate_no 
+			and v.menu_no = m.menu_no 
+			and to_char(v.visited_date,'YYMM')<to_char(add_months(sysdate,0),'YYMM') 
+			and to_char(v.visited_date,'YYMM')>=to_char(add_months(sysdate,-6),'YYMM')  
+			and f1.menu_1st_cate_name like #{menu1stCateName} 
+			group by (f1.menu_1st_cate_name,to_char(v.visited_date,'mm')) 
+			order by to_char(v.visited_date,'mm') asc
+		]]>
+	</select>
+	
+	<!-- 연령별 '음식' 선호도 -->
+	<select id="ageStat" parameterType="String" resultMap="resultMapStatVo">
+		<![CDATA[
+			select  twenty || thirty || forty || fifty || sixty as visitCount, 
+					ageGroup 
+			from(select sum(decode(ageGroup,'20대',visitCount))as twenty, 
+						sum(decode(ageGroup,'30대',visitCount))AS thirty, 
+						sum(decode(ageGroup,'40대',visitCount))AS forty, 
+						sum(decode(ageGroup,'50대',visitCount))AS fifty, 
+						sum(decode(ageGroup,'60대 이상',visitCount))AS sixty, 
+						ageGroup 
+						from(select count(v.visited_no)visitCount, 
+									case when to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')>10 and 
+										 to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')<30 then '20대' 
+										 when to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')>=30 and 
+										 to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')<40 then '30대'  
+										 when to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')>=40 and 
+										 to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')<50 then '40대' 
+										 when to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')>=50 and 
+										 to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')<60 then '50대' 
+										 when to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')>=60 and 
+										 to_char(sysdate,'YYYY')-to_char(to_date(u.user_birth_year,'YYYY'),'YYYY')<120 then '60대 이상' 
+									else '미입력' end ageGroup 
+									from users u, visited v, menu m, food_2nd_category f2, food_1st_category f1 
+									where u.user_no=v.user_no 
+									and v.menu_no=m.menu_no 
+									and m.menu_2nd_cate_no=f2.menu_2nd_cate_no 
+									and f2.menu_1st_cate_no=f1.menu_1st_cate_no 
+									and f1.menu_1st_cate_name like #{menu1stCateName} 
+									group by u.user_birth_year 
+									order by u.user_birth_year desc) 
+						group by ageGroup 
+						order by ageGroup asc)
+		]]>
+	</select>
+</mapper>

@@ -1,0 +1,435 @@
+/*************************************************************************/
+/* 가게정보 - 모달창 *********************************************************/
+/************************************************************************/
+
+#modal-store .modal-header {
+  min-width: 796px;
+}
+
+#modal-store .modal-body {
+  overflow: auto;
+  width: 796px;
+  height: 599px;
+  padding: 20px 30px;
+  font-size: 14px;
+}
+
+#modal-store .modal-store-title {
+  height: 36px;
+}
+
+#modal-store .modal-store-title .store-cate {
+  padding: 8px 2px 0px 12px;
+}
+
+#modal-store .modal-store-title .dropdown-toggle {
+  width: 160px;
+}
+
+#modal-store .modal-store-title .dropdown .dropdown-menu .disabled {
+  color: var(--bs-dark);
+}
+
+#modal-store .store-info {
+  margin: 0px 0px 15px 0px;
+}
+
+#modal-store .store-info .store-info-left {
+  width: 652px;
+  padding-right: 10%;
+}
+
+#modal-store .store-info .store-info-right .modalStoreStar{
+  font-size: 10px;
+}
+
+#modal-store #store-about .store-imgs .img-area {
+  margin-top: 0px;
+  padding-right: 16px;
+  text-align: center;
+  cursor: pointer;
+}
+
+#modal-store #store-about .store-imgs .img-area span {
+  width: 172px;
+  height: 192px;
+  border: 1px;
+  border-style: solid;
+  border-color: #e3e6f0;
+}
+
+#modal-store #store-about .store-imgs .width-full img {
+  overflow: hidden;
+  width: 100%;
+}
+
+#modal-store #store-about .store-imgs .height-full img {
+  overflow: hidden;
+  height: 100%;
+}
+
+#modal-store #store-about .store-imgs .img-paging-icon {
+  padding-top: 1px;
+  padding-right: 20px;
+  font-size: 10px
+}
+
+#modal-store #store-about .store-imgs .img-paging-icon i {
+  padding-right: 5px;
+  padding-left: 5px;
+}
+
+#modal-store #store-about .review-area {
+  width: 543px;
+  height: 256px;
+  vertical-align: top;
+}
+
+#modal-store #store-about .review-area .store-reviews {
+  margin-bottom: 12px;
+  padding: 5px;
+  height: 74px;
+  background-color: rgb(248,249,252);
+  border-bottom: solid 1px var(--bs-gray-200);
+  border-radius: 0px !important;
+}
+
+#modal-store #store-about .review-area .store-reviews .store-review-left {
+  width: 343px;
+  margin-left: 5px;
+}
+
+#modal-store #store-about .review-area .store-reviews .store-review-right {
+  width: 180px;
+  vertical-align: top;
+}
+
+#modal-store #store-about .review-area .store-reviews .store-review-right i {
+  margin-top: 5px;
+  font-size: 10px;
+}
+
+#modal-store #store-about .review-area .store-reviews .store-review-right .review-report {
+  margin-top: -1px;
+  margin-left: 5px;
+  padding: 0px;
+  font-size: 12px;
+}
+
+#modal-store #store-about .review-area #more-reviews #modal-review-more {
+  height: 22px;
+  padding: 0px 0px 0px 5px;
+}
+
+#modal-store #all-menu {
+  height: 26px;
+  margin-top: 0px;
+  margin-bottom: 20px;
+  padding-top: 2px;
+  padding-right: 5px;
+  font-size: 16px;
+}
+
+#modal-store #all-menu #modal-see-menu {
+  margin-top: -2px;
+  font-size: 14px;
+}
+
+#modal-store .other-stores {
+  padding: 15px 25px 10px 25px;
+  background-color: var(--bs-light);
+  font-size: 16px;
+  font-weight: bolder;
+  border-radius: 7px;
+}
+
+#modal-store .other-stores .other-store-state {
+  margin-left: 20px;
+}
+
+#modal-store .other-stores button{
+  width: 200px;
+  height: 94px;
+  margin: 10px 0px 10px 0px;
+  background-color: #464e60;
+  color: white;
+  font-size: 16px;
+  font-weight: normal;
+  vertical-align: middle !important;
+  text-align: center;
+  border-radius: 7px;
+}
+
+#modal-store .other-stores .other-store-2 {
+  margin-left: 25px;
+  margin-right: 25px;
+}
+
+#modal-store .modal-footer-custom {
+  min-width: 796px;
+}
+
+#modal-store .modal-footer-custom p {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+#modal-store .modal-footer-custom button {
+	width: 130px !important;
+}
+
+
+
+
+
+/*************************************************************************/
+/* 가게 전체 리뷰 모달창 ******************************************************/
+/************************************************************************/
+
+
+
+#modal-reviews .modal-header {
+  min-width: 198px;
+}
+
+#modal-reviews .modal-body {
+  width: 796px;
+  height: 599px;
+  padding: 20px 30px;
+  font-size: 14px;
+}
+
+#modal-reviews .modal-store-title {
+  height: 36px;
+}
+
+#modal-reviews .modal-store-title .store-cate {
+  padding: 8px 2px 0px 12px;
+}
+
+#modal-reviews .modal-store-title .dropdown-toggle {
+  width: 300px;
+}
+
+#modal-reviews .modal-store-title .dropdown .dropdown-menu .disabled {
+  color: var(--bs-dark);
+}
+
+#modal-reviews .store-info {
+  margin: 0px 0px 10px 0px;
+}
+
+#modal-reviews .store-info .store-info-left {
+  width: 652px;
+  padding-right: 10%;
+}
+
+#modal-reviews .store-info .store-info-right .modalStoreStar{
+	font-size: 10px;
+}
+
+#modal-reviews .review-area {
+  height: 470.5px;
+  vertical-align: top;
+}
+
+#modal-reviews #store-all-review {
+  overflow: auto;
+  height: 423.5px;
+}
+
+#modal-reviews .review-area .back-store-info {
+  padding: 2px;
+  font-size: 14px;
+}
+
+#modal-reviews .review-area .store-reviews {
+  margin-right: 8px;
+  margin-bottom: 12px;
+  padding: 5px 5px 5px 5px;
+  background-color: rgb(248,249,252);
+  border-radius: 7px;
+  border-bottom: solid 1px var(--bs-gray-200);
+  border-radius: 0px !important;
+}
+
+
+#modal-reviews .review-area .store-reviews .store-review-left {
+  min-width: 517px;
+  margin-left: 5px;
+}
+
+#modal-reviews .review-area .store-reviews .store-review-right {
+  width: 175px;
+  vertical-align: top;
+}
+
+#modal-reviews .review-area .store-reviews .store-review-right i {
+  font-size: 10px;
+}
+
+#modal-reviews .review-area .store-reviews .store-review-right .review-report {
+  margin-top: -1px;
+  margin-left: 5px;
+  padding: 0px;
+  font-size: 12px;
+}
+
+#modal-reviews .modal-footer-custom {
+  min-width: 796px;
+}
+
+#modal-reviews .modal-footer-custom p {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+#modal-reviews .modal-footer-custom button {
+	width: 130px !important;
+}
+
+
+/*************************************************************************/
+/* 가게 최근 한달 메뉴 모달창 **************************************************/
+/************************************************************************/
+
+
+#modal-all-menu .modal-header {
+  min-width: 796px;
+}
+
+#modal-all-menu .modal-body {
+  width: 796px;
+  height: 599px;
+  padding: 20px 30px;
+  font-size: 14px;
+}
+
+#modal-all-menu .modal-store-title {
+  height: 36px;
+}
+
+#modal-all-menu .modal-store-title .store-cate {
+  padding: 8px 2px 0px 12px;
+}
+
+#modal-all-menu .modal-store-title .dropdown-toggle {
+  width: 300px;
+}
+
+#modal-all-menu .modal-store-title .dropdown .dropdown-menu .disabled {
+  color: var(--bs-dark);
+}
+
+#modal-all-menu .store-info {
+  margin: 0px 0px 10px 0px;
+}
+
+#modal-all-menu .store-info .store-info-left {
+  width: 652px;
+  padding-right: 10%;
+}
+
+#modal-all-menu .store-info .store-info-right .modalStoreStar{
+	font-size: 10px;
+}
+
+#modal-all-menu #latest-menu-area .back-store-info {
+  padding: 2px;
+  font-size: 14px;
+}
+
+#modal-all-menu #latest-menu-area #store-latest-menu {
+  overflow: auto;
+  height: 260px;
+  margin-top: 10px;
+  padding: 10px 20px 10px 20px;
+  vertical-align: middle;
+  text-align: center;
+}
+
+#modal-all-menu #latest-menu-area #store-latest-menu .latest-menu {
+  display: inline-block;
+  margin: 10px 5px;
+  padding: 10px;
+  font-size: 14px;
+  color: white;
+  background: #42baff !important;
+  border-radius: 50px;
+  border-style: none;
+}
+
+#modal-all-menu .other-stores {
+  margin-top: 10px;
+  padding: 15px 25px 10px 25px;
+  background-color: var(--bs-light);
+  font-size: 16px;
+  font-weight: bolder;
+  border-radius: 7px;
+}
+
+#modal-all-menu .other-stores .other-store-state {
+  margin-left: 20px;
+}
+
+#modal-all-menu .other-stores button {
+  width: 200px;
+  height: 94px;
+  margin: 10px 0px 10px 0px;
+  background-color: #464e60;
+  color: white;
+  font-size: 16px;
+  font-weight: normal;
+  vertical-align: middle !important;
+  text-align: center;
+  border-radius: 7px;
+}
+
+#modal-all-menu .other-stores .other-store-2 {
+  margin-left: 25px;
+  margin-right: 25px;
+}
+
+#modal-all-menu .modal-footer-custom {
+  min-width: 796px;
+  vertical-align: middle !important;
+}
+
+#modal-all-menu .modal-footer-custom p {
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+#modal-all-menu .modal-footer-custom button {
+	width: 130px !important;
+}
+
+
+/*************************************************************************/
+/* 여기갈래요 멤버 선택 모달창 *************************************************/
+/************************************************************************/
+
+#modal-select-member-go p {
+	margin-bottom: 10px;
+}
+
+#modal-select-member-go #member-selection-button {
+	margin-bottom: 10px;
+}
+
+#modal-select-member-go #member-selection-button button {
+  width: 80px;
+  height: 25px;
+  margin-left: 5px;
+  margin-right: 5px;
+  padding: 0px;
+  vertical-align: middle;
+  font-size: 14px;
+  background-color: var(--bs-light);
+  border-color: rgb(66,98,190);
+  color: rgb(66,98,190);
+}
+
+#modal-select-member-go .form-check-label {
+  cursor: pointer;
+}

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="random">
+
+	<!-- 랜덤 결과 생성 -->
+	<insert id="insertRandomResult" parameterType="com.lunchwb.vo.RandomVo">
+		<selectKey keyProperty="randomNo" resultType="int" order="BEFORE">
+			select seq_vote_no.nextval * 1000000 + LPAD(ROUND(DBMS_RANDOM.VALUE(0, 999999)),6,0) randomNo
+            from   dual
+		</selectKey>
+		
+		<![CDATA[
+			insert into random
+			values (#{randomNo}, #{userNo}, #{storeInfo}, #{stopAtValue}, #{groupName}, sysdate)
+		]]>
+	</insert>
+	
+	<!-- 랜덤 결과 조회 -->
+	<select id="checkRandomResult" parameterType="com.lunchwb.vo.RandomVo" resultType="com.lunchwb.vo.RandomVo">
+		<![CDATA[
+			select random_no randomNo
+			from random
+			where user_no = #{userNo}
+		]]>
+	</select>
+	
+	<!-- 중복시 삭제 -->
+	<delete id="deleteRandomResult" parameterType="com.lunchwb.vo.RandomVo">
+		delete from random
+		where user_no = #{userNo} 
+	</delete>
+	
+	<!-- 랜덤 정보 조회 
+	<select id="checkAllRandomResult" parameterType="com.lunchwb.vo.RandomVo" resultType="com.lunchwb.vo.RandomVo">
+		<![CDATA[
+			select random_no randomNo
+					,store_info storeInfo
+					,stop_at_value stopAtValue
+					,group_name groupName
+					,result_time resultTime
+					,user_no userNo
+			from random
+			where random_no = #{randomNo}
+		]]>
+	
+	</select>
+	-->
+	
+	<!-- 랜덤 정보 조회 -->
+	<select id="checkAllRandomResult" parameterType="com.lunchwb.vo.RandomVo" resultType="com.lunchwb.vo.RandomVo">
+		<![CDATA[
+			select r.random_no randomNo
+			        ,r.store_info storeInfo
+			        ,r.stop_at_value stopAtValue
+			        ,r.group_name groupName
+			        ,r.result_time resultTime
+			        ,r.user_no userNo
+			        ,g.group_no groupNo
+			from random r, groups g
+			where random_no = #{randomNo}
+			and r.group_name = g.group_name
+		]]>
+	
+	</select>
+	
+	<!-- 모든 랜덤 정보 삭제 -->
+	<delete id="deleteRandomInfo">
+		delete from random
+	</delete>
+	
+	
+	<!-- 30분 지난 랜덤 정보 삭제 -->
+	<delete id="deleteRandomInfoOverHalf">
+		<![CDATA[
+			delete from random
+			where sysdate >= result_time  + (interval '30' minute)
+		]]>
+	</delete>
+	
+	
+	
+	
+	
+</mapper>

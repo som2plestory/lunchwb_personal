@@ -1,0 +1,327 @@
+/*********************************** 배경 - Map *****************************/
+#content {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background: url(/lunchwb/assets/img/seoul_map.png) no-repeat center !important;
+  background-size: cover !important;
+ 
+}
+
+#content::before {
+  content: "";
+  opacity: 0.5;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  background-color: #000;
+}
+
+/*********************************** visited - aside *****************************/
+
+#visited-aside {
+  min-width: 300px;
+  color: #000000;
+  background-color: var(--bs-light) !important;
+}
+
+#header-logo {
+  padding: 0px 25px;
+  background-color: white;
+}
+
+.visited-aside-blue {
+  text-align: center;
+  color: white;
+  font-weight: bold;
+  background: var(--bs-blue);
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+}
+
+#visited-aside-status-area {
+  background: var(--bs-light);
+  padding: 20px 0;
+  width: 300px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.visited-aside-status span {
+  color: #000000;
+  font-weight: bold;
+  font-size: 19px;
+}
+
+/*********************************** 당일 방문 > 리뷰 등록 *****************************/
+
+#my-lunch-group {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+#my-lunch-group-name {
+  font-size: 20px;
+  display: inline;
+  margin: 15px 0px 0px 0px;
+  width: 80px;
+  font-weight: bold;
+  color: rgb(0,0,0);
+}
+
+#my-lunch-group-icon {
+  font-size: 25px;
+  display: inline;
+  margin: 10px 0px 10px 0px;
+  width: 35px;
+  font-weight: bold;
+  color: rgb(0,0,0);
+}
+
+#visited-store-name {
+  margin: 10px 12px 0px 12px;
+  color: black;
+  font-weight: 600;
+  font-size: 20px;
+  background-color: rgba(254,254,254,0);
+  border-style: none;
+}
+
+#visited-store-cate {
+  margin: 0px 0px 0px 5px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--bs-gray-600);
+}
+
+.visited-store-blue {
+  margin-left: 5px;
+  color: var(--bs-blue);
+  font-size: 16px;
+  font-weight: bolder;
+}
+
+#visited-star-point i {
+  margin: 0px;
+  color: #f6c23e;
+  font-size: 16px;
+}
+
+#visited-star-point span {
+  margin: 0px 5px 0px 0px;
+}
+
+#visited-store-address {
+  margin: 0px 0px 15px 0px;
+  font-size: 14px;
+  color: var(--bs-dark);
+}
+
+#visited-review-area p {
+  padding: 5px 10px 5px 10px;
+  margin: 0px 5px 10px 5px;
+  background-color: #8eabfb;
+  color: #ffffff;
+  text-align: left;
+  font-size: 14px;
+}
+
+.visited-reviews {
+  width: 270px;
+  margin: 0px 5px 10px 5px;
+  padding: 5px 10px 5px 10px;
+  background-color: #ffffff;
+  font-size: 14px;
+  text-align: left;
+}
+
+.visited-review-user {
+  font-weight: 600;
+}
+
+.visited-review-star {
+  float: right;
+  font-size: 10px;
+}
+
+.visited-p {
+  margin: 10px 0px 10px 0px;
+  font-size: 14px;
+  color: var(--bs-dark);
+}
+
+#btn-visited-cancel:hover {
+  background-color: var(--bs-gray-200);
+}
+
+#btn-visited-cancel {
+  width: 120px;
+  height: 30px;
+  margin-bottom: 5px;
+  padding: 0px;
+  font-size: 14px;
+}
+
+#btn-visited-review-modify:hover {
+  background-color: var(--bs-gray-200);
+}
+
+#btn-visited-review-modify {
+  width: 120px;
+  height: 30px;
+  margin-bottom: 5px;
+  padding: 0px;
+  font-size: 14px;
+}
+
+#btn-visited-black-add:hover {
+  background-color: var(--bs-gray-200);
+}
+
+#btn-visited-black-add {
+  width: 120px;
+  height: 30px;
+  padding: 0px;
+  font-size: 14px;
+}
+
+#btn-visited-black-del:hover {
+  background-color: var(--bs-gray-200);
+}
+
+#btn-visited-black-del {
+  width: 120px;
+  height: 30px;
+  padding: 0px;
+  font-size: 14px;
+}
+
+.container-fluid {
+  padding: 40px 50px 10px 50px;
+}
+
+#today {
+  min-width: 485px;
+  background-color: var(--bs-light);
+  margin-bottom: 20px;
+}
+
+#today p {
+  margin-bottom: 0px;
+  color: var(--bs-gray-600);
+  font-weight: bolder;
+  font-size: 20px;
+}
+
+#today-store-rel {
+  margin-bottom: 30px;
+  min-width: 485px;
+  height: 391px;
+}
+
+.today-store-table {
+  height: 130px;
+  text-align: center;
+}
+
+.today-store-table span {
+  vertical-align: middle;
+  font-size: 20px;
+}
+
+#visited-row {
+  min-height: 300px;
+}
+
+#today-review {
+  min-width: 487px;
+  min-height: 332px;
+  max-height: 391px;
+}
+
+#today-review .card-body {
+  height: 332.03px;
+  padding: 30px 30px 15px 30px;
+}
+
+#today-review .card-body .today-review-line {
+  height: 58px;
+  margin-bottom: 5.4px;
+}
+
+#today-review .card-body .circles {
+  vertical-align: middle;
+}
+
+#today-review .card-body .icon-circle {
+  width: 6px;
+  height: 6px;
+  margin-bottom: 3px;
+}
+
+#today-review .card-body #today-star-icon {
+  margin: 0px 0px 3.5px 25px;
+  padding: 0px;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+#today-review #today-menu {
+  height: 24px;
+  margin: 0px 0px 10px 25px;
+  color: rgb(133,135,150);
+  border-color: var(--bs-gray-500);
+}
+
+#today-review .col-xxl-7 {
+  width: 56%;
+}
+
+#today-review .text-end {
+  width: 34%;
+}
+ 
+#today-review img {
+  width: 130.5px;
+  height: 174px;
+}
+
+ #today-review input[type="file"] {
+  width: 200px;
+  margin-bottom: 10px;
+  margin-left: 25px;
+  font-size: 14px;
+}
+
+#today-review #noFile {
+  width: 200px;
+  margin-bottom: 10px;
+  margin-left: 25px;
+  font-size: 16px;
+}
+
+.card-body #today-review-content {
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-color: var(--bs-gray-500);
+  font-size: 16px;
+}
+
+.card-body .today-review-content {
+  margin-left: 25px;
+  font-size: 16px;
+}
+
+#btn-add-review {
+  height: 38px
+}
+
+.btn-today {
+  width: 150px;
+  height: 38px;
+  color: white;
+}

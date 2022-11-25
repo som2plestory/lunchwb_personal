@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="visited">
+	<resultMap id="resultMapVisitedVo" type="VisitedVo">
+		<result column="visited_no" property="visitedNo" />
+		<result column="user_no" property="userNo" />
+		<result column="group_no" property="groupNo" />
+		<result column="group_name" property="groupName" />
+		<result column="store_no" property="storeNo" />
+		<result column="menu_no" property="menuNo" />
+		<result column="visited_date" property="visitedDate" />
+		<result column="menu_1st_cate_Name" property="menu1stCateName" />
+		<result column="menu_2nd_cate_Name" property="menu2ndCateName" />
+		<result column="store_name" property="storeName" />
+		<result column="menu_name" property="menuName" />
+		<result column="select_month" property="selectMonth" />
+		<result column="visit_count" property="visitCount" />
+		<result column="menu_count" property="menuCount" />
+		<result column="group_order" property="groupOrder" />
+		<result column="store_road_address" property="storeRoadAddress" />
+		<result column="rating_bujang" property="ratingBujang" />
+		<result column="last_visit" property="lastVisit" />
+	</resultMap>
+	
+   
+   <!-- 달력 가게정보 띄우기 -->
+   <select id="calendar" parameterType="VisitedVo" resultMap="resultMapVisitedVo">
+		select  v.store_no, 
+				to_char(v.visited_date,'Mon DD YYYY','NLS_DATE_LANGUAGE=ENGLISH')visited_date, 
+				f1.menu_1st_cate_name, 
+				g.group_name, 
+				m.menu_name, 
+				s.store_name, 
+				dense_rank()over(order by g.group_no)seq 
+		from visited v 
+		left outer join store s on s.store_no = v.store_no 
+		left outer join food_2nd_category f2 on f2.menu_2nd_cate_no = s.menu_2nd_cate_no 
+		left outer join groups g on g.group_no = v.group_no 
+		left outer join food_1st_category f1 on f1.menu_1st_cate_no = f2.menu_1st_cate_no 
+		left outer join menu m on m.menu_no = v.menu_no 
+		where to_char(v.visited_date,'YYMM')=to_char(to_date(${selectMonth},'YYMM'),'YYMM') 
+		and v.user_no = #{userNo} 
+		order by visited_date asc
+   </select>
+	
+	
+	<!-- 지니 -->
+	<insert id="decideVisit" parameterType="Map">
+		INSERT INTO visited (visited_no, user_no, group_no, store_no, visited_date)
+		SELECT seq_visited_no.NEXTVAL, user_no, group_no, store_no, visited_date
+		FROM (
+		<foreach item="userNo" collection="memberList" separator="UNION ALL ">
+			SELECT #{userNo} user_no, #{groupNo} group_no, #{storeNo} store_no, TO_DATE(SYSDATE) visited_date 
+			FROM DUAL
+		</foreach>
+		) 
+	</insert>
+	
+	
+	<delete id="cancelVisit" parameterType="VisitedVo">
+		DELETE FROM visited
+		WHERE visited_no = #{visitedNo}
+		AND user_no = #{userNo}
+		AND visited_date = TO_DATE(SYSDATE)
+	</delete>
+	
+	
+	<select id="recentVisit" parameterType="VisitedVo" resultMap="resultMapVisitedVo">
+		SELECT  visit_count
+				, visited_date
+				, group_name
+		FROM (SELECT count(visited_no) visit_count
+			  FROM visited
+			  WHERE store_no = #{storeNo}
+			  AND user_no = #{userNo}), 
+			 (SELECT TO_CHAR(visited_date, 'YYYY.MM.DD') visited_date
+		         	 , group_name
+			  FROM visited v, groups g
+			  WHERE visited_no = (SELECT MAX(visited_no)
+		                   		  FROM visited
+		                    	  WHERE store_no = #{storeNo}
+		                    	  AND user_no = #{userNo})
+			  AND v.group_no = g.group_no) 
+	</select>
+	
+	
+	<select id="recentMenu" parameterType="int" resultMap="resultMapVisitedVo">
+		SELECT  COUNT(menu_name) menu_count
+				, menu_name
+		FROM (	SELECT m.menu_name
+				FROM visited v, menu m
+				WHERE visited_date > TO_CHAR(SYSDATE-30, 'YYYY-MM-DD')
+				AND v.menu_no IS NOT NULL
+				AND store_no = #{storeNo}
+				AND v.menu_no = m.menu_no	)
+		GROUP BY menu_name
+	</select>
+
+
+	<select id="todayStoreInfo" parameterType="int" resultMap="resultMapVisitedVo">
+		SELECT  s.store_no
+				, i.visited_no
+				, g.group_no
+		        , g.group_name
+		        , s.store_name
+		        , f.menu_2nd_cate_name
+		        , s.store_road_address
+		        , rating_bujang
+		FROM store s, groups g, food_2nd_category f
+			 , (SELECT group_no
+			           , store_no
+			           , visited_no
+			     FROM visited
+			     WHERE TO_CHAR(visited_date, 'YYYY-MM-DD') = TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+			     AND user_no = #{userNo}) i
+			 , (SELECT ROUND(AVG(user_score), 2) rating_bujang
+			         FROM review r, visited v
+			         WHERE v.visited_no = r.visited_no
+			         AND v.user_no = r.user_no
+			         AND v.store_no = (  SELECT store_no
+			                             FROM visited v
+			                             WHERE TO_CHAR(visited_date, 'YYYY-MM-DD') = TO_CHAR(SYSDATE, 'YYYY-MM-DD')
+			                             AND user_no = #{userNo}  ))
+		WHERE i.group_no = g.group_no
+		AND i.store_no = s.store_no
+		AND s.menu_2nd_cate_no = f.menu_2nd_cate_no
+	</select>
+	
+	
+	<select id="storeAndMe" parameterType="VisitedVo" resultMap="resultMapVisitedVo">
+		SELECT  visited_date
+		        , cv.visit_count
+		        , vtr.last_visit
+		        , vtr.group_name
+		FROM (  SELECT  visited_date
+						, user_no
+		        FROM(SELECT  ROWNUM rn
+		                     , visited_date
+		                     , user_no
+		             FROM ( SELECT  TO_CHAR(visited_date, 'YYYY')||'년 '||TO_CHAR(visited_date, 'MM')||'월 '||TO_CHAR(visited_date, 'DD')||'일'  visited_date
+		             				, user_no
+		                    FROM visited 
+		                    WHERE user_no = #{userNo}
+		                    AND store_no = #{storeNo}
+		                    ORDER BY visited_no ASC)) vd
+		        WHERE vd.rn = 1  ) vdt
+		     ,( SELECT  COUNT(visited_no) visit_count
+		     			, v.user_no
+		        FROM visited v
+		        GROUP BY user_no, store_no
+		        HAVING user_no = #{userNo}
+		        AND store_no = #{storeNo} ) cv
+		     ,( SELECT  last_visit
+		                , group_name
+		                , vt.user_no
+		        FROM(   SELECT  ROWNUM rn
+		                        , last_visit
+		                        , group_name
+		                        , user_no
+		                FROM(SELECT TO_DATE(SYSDATE) - visited_date last_visit
+		                            , group_name
+		                            , user_no
+		                            FROM visited v, groups g
+		                            WHERE v.group_no = g.group_no
+		                            AND v.user_no = #{userNo}
+		                            AND v.store_no = #{storeNo}
+		                            ORDER BY visited_no DESC    )) vt
+		        WHERE rn = 2) vtr
+		WHERE vtr.user_no (+) = vdt.user_no
+		AND cv.user_no (+) = vdt.user_no
+	</select>
+	
+	
+	<select id="todayMenu" parameterType="VisitedVo">
+		UPDATE visited
+		SET menu_no = #{menuNo}
+		WHERE visited_no = #{visitedNo}
+	</select>
+	
+	
+	<select id="groupByDate" parameterType="VisitedVo" resultType="int">
+		SELECT group_no
+		FROM visited
+		WHERE user_no = #{userNo}
+		AND to_char(visited_date,'Mon DD YYYY','NLS_DATE_LANGUAGE=ENGLISH') = #{visitedDate}
+	</select>
+	
+	
+	<!--  투표 후 여기갈래요  -->
+	<insert id="insertVoteVisit" parameterType="Map">
+		INSERT INTO visited (visited_no, user_no, group_no, store_no, visited_date)
+		SELECT seq_visited_no.NEXTVAL, A.*
+		FROM (
+		<foreach item="userNo" collection="voteMember" separator="UNION ALL ">
+			SELECT #{userNo} AS user_no, #{groupNo} AS group_no, #{storeNo} AS store_no, TO_DATE(SYSDATE) AS visited_date 
+			FROM dual
+		</foreach>
+		) A
+	</insert>
+
+</mapper>

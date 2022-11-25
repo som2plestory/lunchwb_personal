@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="test">
+
+	<select id="getGroupName" parameterType="int" resultType="com.lunchwb.vo.GroupVo">
+		SELECT group_name groupName
+		FROM   groups
+		WHERE  group_no = #{groupNo}
+	</select>
+	
+	
+	<update id="updateRandomState3" parameterType="int">
+		update users
+		set user_state = 4
+		where user_no in (select u.user_no
+                    from users u, group_member g
+                    where u.user_no = g.user_no
+                    and g.group_no = #{groupNo})	
+	</update>
+
+	<insert id="insertTest">
+		INSERT INTO vote
+		VALUES (seq_vote_no.NEXTVAL, 1, 1, SYSDATE, '[]', '[]', 1)
+	</insert>
+	
+</mapper>

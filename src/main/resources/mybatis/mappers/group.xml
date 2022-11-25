@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="group">
+
+	<resultMap id="GroupVo" type="com.lunchwb.vo.GroupVo">
+		<result column="group_no" property="groupNo" />
+		<result column="group_leader" property="groupLeader" />
+		<result column="group_name" property="groupName" />
+		<result column="group_member_no" property="groupMemberNo" />
+		<result column="user_no" property="userNo" />
+		<result column="boss_check" property="bossCheck" />
+		<result column="user_name" property="userName" />
+		<result column="user_birth_year" property="userBirthYear" />
+		<result column="user_age" property="userAge" />
+		<result column="user_sex" property="userSex" />
+		<result column="user_grade" property="userGrade" />
+		<result column="user_state" property="userState" />
+		<result column="group_order" property="groupOrder" />
+	</resultMap>	
+
+
+	<!-- 그룹 리스트 -->
+	<select id="userGroups" parameterType="int" resultMap="GroupVo">
+		SELECT  g.group_no,
+				g.group_name,
+				group_order
+		FROM groups g, group_member m
+		WHERE g.group_no = m.group_no
+		AND user_no = #{userNo}
+		ORDER BY group_order ASC
+	</select>
+	
+	
+	<!-- 그룹 이름 -->
+	<select id="selectedGpName" parameterType="GroupVo" resultType="String">
+		SELECT g.group_name
+		FROM group_member m, groups g
+		WHERE m.group_no = g.group_no
+		AND g.group_no = #{groupNo}
+		AND m.user_no = #{userNo}
+	</select>
+	
+	
+	<!-- 그룹에 포함된 회원(유령x)수 -->
+	<select id="groupUsers" parameterType="int" resultType="int">
+		SELECT count(u.user_no) 
+		FROM users u, group_member m
+		WHERE u.user_no = m.user_no
+		AND m.group_no = #{groupNo}
+		AND user_email IS NOT NUll
+	</select>
+	
+	
+	<!-- 그룹 멤버 리스트 -->
+	<select id="groupMembers" parameterType="int" resultMap="GroupVo">
+		SELECT  group_member_no,
+		        u.user_no,
+		        group_no,
+		        boss_check,
+		        user_name,
+		        user_birth_year,
+		<![CDATA[		       
+		        CASE WHEN user_birth_year > "30_start" THEN '20대 이하'
+             		 WHEN user_birth_year > "40_start" AND user_birth_year <= "30_start" THEN '30대'
+             		 WHEN user_birth_year > "50_start" AND user_birth_year <= "40_start" THEN '40대'
+             		 WHEN user_birth_year <= "50_start" THEN '50대 이상'
+		        END user_age,
+        ]]>
+		        CASE WHEN user_sex = 'male' THEN '남자'
+		        	 WHEN user_sex = 'female' THEN '여자'
+			    END	user_sex,
+			    group_order
+		FROM group_member m, users u, ( SELECT  TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - 29 "30_start",
+                                       			TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - 39 "40_start",
+                                        		TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - 49 "50_start"
+                                		FROM DUAL )
+		WHERE m.user_no = u.user_no
+		AND group_no = #{groupNo}
+		ORDER BY boss_check DESC,
+		         group_member_no ASC
+	</select>
+	
+	
+	<!-- 그룹 리더 -->
+	<select id="groupLeader" parameterType="int" resultType="int">
+		SELECT group_leader
+		FROM groups
+		WHERE group_no = #{groupNo}
+	</select>
+
+
+	<!-- 그룹 생성 -->
+	<insert id="createGroup" parameterType="GroupVo">
+		<selectKey keyProperty="groupNo" resultType="int" order="BEFORE">
+			SELECT SEQ_GROUP_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO GROUPS
+		VALUES (#{groupNo}, #{groupLeader}, #{groupName})
+	</insert>
+	
+	
+	<!-- 그룹 개수 -->
+	<select id="groupCount" parameterType="int" resultType="int">
+		SELECT COUNT(group_no)
+		FROM group_member
+		WHERE user_no = #{userNo}
+	</select>
+	
+	
+	<!-- 그룹 순서 변경 -->
+	<update id="changeOrder" parameterType="GroupVo">
+		UPDATE GROUP_MEMBER
+		SET GROUP_ORDER = #{order}
+		WHERE USER_NO = #{userNo}
+		AND GROUP_NO = #{groupNo}
+	</update>
+	
+	
+	<!-- 그룹 정보 변경(이름/리더): 한 번에 바꾸는 경우는 없다 -->
+	<update id="groupChange" parameterType="GroupVo">
+		UPDATE groups
+		SET 
+			<choose>
+				<when test="groupName == null || groupName == ''">
+					group_leader = #{groupLeader}
+				</when>
+				<otherwise>
+					group_name = #{groupName}
+				</otherwise>
+			</choose>
+		WHERE group_no = #{groupNo}
+	</update>
+	
+	
+	<!-- 그룸장 제외 그룹원 목록 -->
+	<select id="groupMembersForAlert" parameterType="int" resultType="int">
+		SELECT u.user_no
+		FROM group_member m, users u
+		WHERE m.group_no = #{groupNo}
+		AND  m.user_no = u.user_no
+		AND m.user_no != 
+		(SELECT group_leader FROM groups WHERE group_no = #{groupNo})
+		AND u.user_email IS NOT NULL
+	</select>
+	
+	
+	<!-- 그룹 보스 유무 -->
+	<select id="beBoss" parameterType="int" resultType="int">
+		SELECT COUNT(boss_check)
+		FROM group_member
+		WHERE group_no = #{groupNo}
+		AND boss_check = 1
+	</select>
+	
+	
+	<!-- 기존 보스 내려놓기 -->
+	<update id="deleteBoss" parameterType="int">
+		UPDATE group_member
+		SET boss_check = 0
+		WHERE group_no = #{groupNo}
+	</update>
+	
+	
+	<!-- 그룹 멤버 여부 -->
+	<select id="memberCheck" parameterType="GroupVo" resultType="int">
+		SELECT  count(user_no)
+		FROM group_member
+		WHERE group_no = #{groupNo}
+		AND user_no = #{userNo}
+	</select>
+	
+	
+	<!-- 그룹원 추가 -->
+	<insert id="addMember" parameterType="GroupVo">
+		<selectKey keyProperty="groupMemberNo" resultType="int" order="BEFORE">
+			SELECT SEQ_GROUP_MEMBER_NO.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO GROUP_MEMBER
+		VALUES (#{groupMemberNo}, 
+				#{userNo}, 
+				#{groupNo}, 
+				#{bossCheck}, 
+				#{groupOrder})
+	</insert>
+	
+	
+	<!-- 그룹 멤버 1명 정보(방금 추가한 멤버 정보 조회) -->
+	<select id="memberInfo" parameterType="int" resultMap="GroupVo">
+		SELECT  group_member_no,
+				u.user_no,
+				group_no,
+				boss_check,
+				user_name,
+				user_birth_year,
+		<![CDATA[		       
+		        CASE WHEN user_birth_year > "30_start" THEN '20대 이하'
+             		 WHEN user_birth_year > "40_start" AND user_birth_year <= "30_start" THEN '30대'
+             		 WHEN user_birth_year > "50_start" AND user_birth_year <= "40_start" THEN '40대'
+             		 WHEN user_birth_year <= "50_start" THEN '50대 이상'
+		        END user_age,
+        ]]>
+		        CASE WHEN user_sex = 'male' THEN '남자'
+		        	 WHEN user_sex = 'female' THEN '여자'
+			    END	user_sex,
+			    group_order
+		FROM group_member m, users u, ( SELECT  TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - 29 "30_start",
+                                       			TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - 39 "40_start",
+                                        		TO_NUMBER(TO_CHAR(SYSDATE, 'YYYY')) - 49 "50_start"
+                                		FROM DUAL )
+        WHERE m.user_no = u.user_no
+        AND group_member_no = #{groupMemberNo}			
+	</select>
+	
+	
+	<!-- 그룹 강퇴 / 탈퇴-->
+	<delete id="outGroup" parameterType="GroupVo">
+		DELETE FROM group_member
+		WHERE user_no = #{userNo}
+		AND group_no = #{groupNo}
+	</delete>
+	
+	
+	<!-- 자동 그룹 순서 조정 -->
+	<update id="autoOrder" parameterType="GroupVo">
+		UPDATE group_member
+		SET group_order = group_order - 1
+		WHERE user_no = #{userNo}
+		AND group_order > #{groupOrder}
+	</update>
+	
+	
+	<!-- 방문 결정할 멤버 리스트 for selection -->
+	<select id="membersGoWith" parameterType="GroupVo" resultMap="GroupVo">
+		SELECT  u.user_no
+		        , user_name
+		FROM users u, group_member m
+		WHERE u.user_no = m.user_no
+		AND group_no = #{groupNo}
+		AND u.user_no != #{userNo}
+		AND user_state = 0
+		ORDER BY group_member_no ASC
+	</select>
+	
+	
+	<!--    정원     -->
+	<!-- index.jsp에서 그룹 선택 -->
+	<select id="selectBasketGroup" parameterType="int" resultMap="GroupVo">
+		SELECT g.group_no, g.group_name
+		FROM   groups g, group_member m
+		WHERE  g.group_no = m.group_no
+		AND    m.user_no = #{userNo}
+		ORDER BY m.group_order ASC
+	</select>
+	
+				
+	<!-- 그룹 이름 넘버가 같이 필요해? -->
+	<!-- 추가된 그룹 정보 -->
+	<select id="addedGroup" parameterType="int" resultMap="GroupVo">
+		SELECT  group_no,
+				group_name
+		FROM    groups
+		WHERE   group_no = #{groupNo} 
+	</select>
+	
+	
+	<!-- 투표 만들기(그룹 멤버 불러오기) -->
+	<select id="selectVoteMember" parameterType="int" resultMap="GroupVo">
+		SELECT g.group_member_no
+		       ,NVL(g.user_no, 0) user_no
+		       ,g.boss_check
+		       ,u.user_name 
+		       ,u.user_grade
+		FROM   group_member g, users u
+		WHERE  g.user_no = u.user_no
+		AND    group_no = #{groupNo}
+		ORDER BY DECODE (boss_check, 1, 1), group_member_no ASC
+	</select>
+
+</mapper>

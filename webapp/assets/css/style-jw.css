@@ -1,0 +1,12 @@
+.emphasize-blue {
+  font-weight: bold !important;
+  color: var(--bs-blue) !important;
+}
+
+.full-box {
+  width: 100%;
+}
+
+.only-bold {
+  font-weight: bold !important;
+}

@@ -1,0 +1,273 @@
+body {
+  height: 100%;	
+}
+
+#header {
+  background: var(--bs-blue);
+  padding: 10px 0;	
+}
+
+#header > img {
+  height: 38px;
+}
+
+header > div {
+  background: var(--bs-blue);
+  margin: 0;
+  padding: 18px 0;	
+}
+
+header > div > img {
+  height: 39px;	
+}
+
+#countdown-area {
+  background: #ffffff;
+  padding: 10px 0;
+  padding-bottom: 15px;
+  padding-top: 16px;	
+}
+
+#countdown-teamname {
+  margin: 0;
+  margin-bottom: 5px;	
+}
+
+#groupName {
+  color: rgb(0,0,0);
+  font-size: 20px;	
+}
+
+#toopyo {
+  color: rgb(76,76,82);
+  font-size: 16px;	
+}
+
+.countdown-title {
+  color: rgb(0,0,0);
+  width: 110px;
+  min-width: 110px;
+  max-width: 110px;
+  margin-right: 10px;
+}
+
+.countdown-time {
+  color: var(--bs-blue);
+  font-size: 20px;
+  font-weight: bold;
+  width: 180px;
+  min-width: 180px;
+  max-width: 180px;	
+}
+
+.vote-title {
+  padding: 0px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  color: rgb(255,255,255);
+  background: var(--bs-blue);	
+}
+
+#vote-name-area {
+  padding-top: 19px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 5px;	
+}
+
+.vote-select-name-btn {
+  cursor: pointer;
+  background: rgb(234,236,244);
+  border-radius: 10px;
+  color: rgb(0,0,0);
+  border-color: rgb(234,236,244);
+  padding-left: 20px;
+  padding-right: 20px;
+  margin-right: 5px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  margin-bottom: 7px;	
+}
+
+.vote-select-name-btn:active {
+  color: var(--bs-blue);
+  background: rgb(255,255,255);	
+  border-color: var(--bs-blue);
+  font-weight: bold;	
+}
+
+.vote-voted-name {
+  color: rgb(255,255,255);
+  background: var(--bs-gray-900);
+  border-color: var(--bs-gray-900);	
+}
+
+.vote-selected-name {
+  color: var(--bs-blue);
+  background: rgb(255,255,255);	
+  border-color: var(--bs-blue);
+  font-weight: bold;
+}
+
+.vote-selected-name:acitve {
+  background-color: var(--bs-gray-300);	
+}
+
+.storeRadio {
+  width: 20%;
+}
+
+.storeRadio input {
+  width: 15px;
+  height: 15px;	
+  margin-top: 15px;
+}
+
+.storeInfo {
+  width: 80%;	
+}
+
+.storeName {
+  color: rgb(0,0,0);
+  font-weight: bold;	
+}
+
+#vote-btn {
+  margin-top: 14px;	
+}
+
+#vote-btn button {
+  cursor: pointer;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-right: 15px;
+  padding-left: 15px;
+  border-color: var(--bs-blue);
+  border-radius: 10px;	
+  margin-bottom: 30px;
+}
+
+#vote-btn button:active {
+  color: var(--bs-blue);
+  background: rgb(255,255,255);	
+  border-color: var(--bs-blue);
+  font-weight: bold;
+}
+
+#result-box {
+  padding-top: 39px;
+  padding-bottom: 50px;
+}
+
+#result-1 {
+  color: rgb(0,0,0);
+  font-weight: bold;
+  font-size: 18px;	
+}
+
+#result-2 {
+  color: rgb(74,75,81);	
+}
+
+#result-3 {
+  color: var(--bs-blue);
+  font-size: 22px;
+  font-weight: bold;
+}
+
+#result-4 {
+  color: rgb(85,86,91);
+}
+
+#result-graph-box {
+  padding-bottom: 39px;	
+}
+
+.graph-area {
+  display: block;
+  padding-bottom: 20px;
+  padding-left: 20px;
+  padding-right: 20px;	
+}
+
+.graph-info {
+  margin-bottom: 4px;
+}
+
+.graph-1  {
+  color: rgb(0,0,0);
+  font-weight: bold;
+  font-size: 12px;
+  margin: 0;
+  margin-right: 9px;	
+}
+
+.graph-2 {
+  color: rgb(34,34,34);
+  font-size: 10px;	
+}
+
+.graph-graph {
+  display: flex;	
+}
+
+.progress {
+  width: 100%;
+  margin: 0;
+  height: 13px;
+  margin-right: 7px;
+}
+
+#link-box > div {
+  padding-bottom: 13px;	
+}
+
+#link-comment {
+  font-size: 12px;
+  color: rgb(102,103,112);
+}
+
+#vote-kakao-btn {
+  width: 100px;
+  min-width: 100px;
+  max-width: 100px;
+  height: 35px;
+  min-height: 35px;
+  max-height: 35px;
+  margin-right: 10px;
+  color: rgb(96,78,64);
+  font-weight: bold;
+  background: #f9e000;
+  border-width: 2px;
+  border-color: #f9e000;
+  padding-right: 0;
+  padding-left: 0;
+  margin-left: 0;
+  font-size: 14px;
+}
+
+#vote-kakao-btn i {
+  color: rgb(96,78,64);
+  margin-right: 6px;
+  font-size: 18px;
+}
+
+#vote-kakao-btn:active {
+  background: rgb(239,187,52);
+  border-color: rgb(239,187,52);
+}
+
+#copy-link-btn {
+  height: 35px;
+  font-size: 14px;
+  background: rgb(104,105,109);
+  width: 100px;
+  max-height: 35px;
+  min-height: 35px;
+  min-width: 100px;
+  max-width: 100px;	
+}
+
+#copy-link-btn:active {
+  background: var(--bs-gray-800);
+}

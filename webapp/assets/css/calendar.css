@@ -1,0 +1,141 @@
+@media (min-width: 992px) {
+  .month {
+    font-size: 3.5rem;
+  }
+}
+
+
+
+/* =================================== 달력헤더 =================================== */
+#main-content {
+  margin-left: 5px;
+  margin-right: 20px;
+  color: var(--bs-dark);
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  margin-top: 10px;
+  width: 100%;
+  min-height: auto;
+}
+
+#main-content .week {
+	text-align: center;
+}
+	
+
+#main-content .disabled{
+  color: #ddd;
+}
+
+
+.prev-button, .next-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+
+
+/* =================================== 달력 바디 =================================== */
+.calendar {
+  border-radius: 10px;
+}
+
+.calendar ol li {
+  float: left;
+  width: 14.28571%;
+  list-style: none;
+}
+
+.calendar .day-names {
+  border-bottom: 1px solid #eee;
+}
+
+.calendar .day-names li {
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.calendar .days li {
+  border-bottom: 1px solid #eee;
+  min-height: 12rem;
+}
+
+
+.calendar .days li .date {
+  margin: 0.5rem 0;
+  padding-right: 1rem;
+}
+
+.calendar .days li .event {
+  font-size: 0.75rem;
+  padding: 0.4rem;
+  color: white;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-radius: 4rem;
+  margin-bottom: 2px;
+}
+
+.calendar .days li .event.span-2 {
+  width: 200%;
+}
+
+.calendar .days li .event.begin {
+  border-radius: 1rem 0 0 1rem;
+}
+
+.calendar .days li .event.end {
+  border-radius: 0 1rem 1rem 0;
+}
+
+.calendar .days li .event.clear {
+  background: none;
+}	
+
+.week .day.today span span {
+  border-radius: 50%;
+  width: 30px;
+}
+
+
+.calendar .days li:nth-child(n + 29) {
+  border-bottom: none;
+}
+
+/* ===== 이전달 or 다음달 ===== */
+.calendar .days li.outside .date {
+  color: #ddd;
+}
+
+.week.start-on-sunday .day:first-child{
+  color: red;
+}
+
+.week.start-on-sunday .day:nth-last-child(1)
+{
+  color: blue;
+}
+
+
+.month {
+  font-size: 2rem;
+}
+
+.week {
+  margin: 0 !important;
+  overflow: hidden;
+}
+
+.show-menu {
+  flex: 0 0 auto;
+  width: 95%;
+  min-width: inherit;
+}
+
+
+
+
+
